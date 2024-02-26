@@ -45,7 +45,7 @@ Install "requests" with
 
 > Set the IP address of your Syr SafeTech Connect device in the variable *SYR_IPADDR*.
 
-Just execute
+Then just execute
 
     python SyrSafeTechLogger.py
 
@@ -54,7 +54,9 @@ Logfile is created in your current working directory.
 
 For running in the background, on any minicomputer (Odroid, Raspberry Pi, etc.):
 
-    nohup python SyrSafeTechLogger.py
+    nohup python SyrSafeTechLogger.py &
+
+It is then safe to log out, the script will continue to work in the background.
 
 Or make the Python script executable (macOS and Linux only)
 

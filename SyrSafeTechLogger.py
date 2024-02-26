@@ -22,7 +22,7 @@ import requests
 
 
 SYR_IPADDR = "192.168.2.120"       # SET YOUR SYR'S IP ADDRESS RIGHT HERE
-SYR_UNITS  = "metric"              # unused; only metric so far (°C, bar, Liter)
+SYR_UNITS  = "metric"              # unused yet; only metric so far (°C, bar, Liter)
 SYR_DELAY  = 1                     # delay between a set of requests in seconds
 
 
@@ -77,14 +77,22 @@ if __name__ == "__main__":
 
     # TESTING, TESTING, TESTING 123
     polls = 0
+    fout = open( time.strftime("%Y%m%d%H%M%S") + "_SyrSafeTech.log", "w+t" )
+
     while True:
-        # log everything in its raw form
-        print( time.asctime(),                  ";",
-              GetDataRaw( SYR_CMD_VALVE ),      ";",
-              GetDataRaw( SYR_CMD_PRESSURE ),   ";",
-              GetDataRaw( SYR_CMD_FLOW ),       ";",
-              GetDataRaw( SYR_CMD_VOLUME ),     ";",
-              GetDataRaw( SYR_CMD_VOLUME_LAST ) )
+        timeHuman   = time.asctime()
+        timeMachine = time.strftime("%Y;%m;%d; %H;%M;%S")
+
+        # log everything in its raw form for now
+        dataLine = GetDataRaw( SYR_CMD_VALVE )     + "; " + \
+                   GetDataRaw( SYR_CMD_PRESSURE )  + "; " + \
+                   GetDataRaw( SYR_CMD_FLOW )      + "; " + \
+                   GetDataRaw( SYR_CMD_VOLUME )    + "; " + \
+                   GetDataRaw( SYR_CMD_VOLUME_LAST )
+
+        print( timeHuman + "; " + dataLine )
+        fout.write( timeMachine + "; " + dataLine + "\n" )
+        fout.flush() 
 
         # break
 
@@ -92,4 +100,8 @@ if __name__ == "__main__":
         #     break
 
         time.sleep( SYR_DELAY )
+    # END while
+
+    fout.close()
+
 

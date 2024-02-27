@@ -52,9 +52,17 @@ Then just execute
 and either kill it with CTRL-C or any other kill command.  
 Logfile is created in your current working directory.
 
+Command line options:
+
+    --help        : print this help
+    --nofile      : do not write to a file
+    --nostdout    : do not print to stdout (useful when used with nohup)
+    --maxpolls=n  : stop after n polls
+
+
 For running in the background, on any minicomputer (Odroid, Raspberry Pi, etc.):
 
-    nohup python SyrSafeTechLogger.py &
+    nohup python SyrSafeTechLogger.py --nostdout &
 
 It is then safe to log out, the script will continue to work in the background.
 
@@ -138,6 +146,8 @@ CHANGES 02/2024:
   - initial q&d version
   - added file output
   - added sample output file
+  - added some command line options
+  - added alarm state query
 
 ---
 Have a nice day  

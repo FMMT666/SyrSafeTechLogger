@@ -71,6 +71,7 @@ def PrintUsage():
     print( "  --nofile      : do not write to a file" )
     print( "  --nostdout    : do not print to stdout (useful when used with nohup)" )
     print( "  --maxpolls=n  : stop after n polls" )
+    print( "  --delay=n     : delay between set of polls in seconds; floating point allowed, e.g. --delay=1.5" )
 
 
 #############################################################################################################
@@ -139,9 +140,19 @@ if __name__ == "__main__":
             if maxpolls < 1:
                 maxpolls = 1
         # ------------------------------
+        elif "--delay=" in args:
+            try:
+                SYR_DELAY = abs( float( args[8:] ) )
+            except:
+                print( "ERROR: invalid value for --delay" )
+                PrintUsage()
+                sys.exit( 0 )
+            if SYR_DELAY < 0.1:
+                SYR_DELAY = 0
+        # ------------------------------
         else:
-            if args == "--maxpolls":
-                print( "ERROR: missing value for --maxpolls" )
+            if args == "--maxpolls" or args == "--delay":
+                print( "ERROR: missing value for " + args )
             else:
                 print( "ERROR: unknown option: " + args )
             PrintUsage()

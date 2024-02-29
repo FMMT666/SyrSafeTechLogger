@@ -22,7 +22,7 @@ was available. HS.
 Logged in via VPN and put together these few lines of code, which very clearly showed the amount and rate of water
 flowing. About 7l per 30 minutes. At the time of writing this, it's still unclear whether I just forgot to close any of the taps or
 if the house is already under water. Nice. (*1*)  
-Logfile attached for the fun of it.
+Logfile (in an older format though) attached for the fun of it. This file does not have the (later added) alarm state in it.
 
 Maybe the code is helpful for some of you too.
 
@@ -63,6 +63,8 @@ Command line options:
     --nostdout    : do not print to stdout (useful when used with nohup)
     --maxpolls=n  : stop after n polls
     --delay=n     : delay between set of polls in seconds; floating point allowed, e.g. --delay=1.5
+    --raw         : print raw data; units 'mbar', 'mL', etc. are not removed
+
 
 By default
 
@@ -95,27 +97,27 @@ That's it for now.
 ## Sample Output
 stdout output (depending on your locali-s/z-ation):
 
-    Mon Feb 26 00:00:09 2024; 10; 2100 mbar; 0; 0mL; 6; FF
-    Mon Feb 26 00:00:12 2024; 10; 2000 mbar; 0; 0mL; 6; FF
-    Mon Feb 26 00:00:14 2024; 10; 2100 mbar; 0; 0mL; 6; FF
-    Mon Feb 26 00:00:16 2024; 10; 2000 mbar; 0; 0mL; 6; FF
-    Mon Feb 26 00:00:18 2024; 10; 2000 mbar; 0; 0mL; 6; FF
-    Mon Feb 26 00:00:20 2024; 10; 2000 mbar; 0; 0mL; 6; FF
+    Mon Feb 26 00:00:09 2024; 10; 2100; 0; 0; 6; FF
+    Mon Feb 26 00:00:12 2024; 10; 2000; 0; 0; 6; FF
+    Mon Feb 26 00:00:14 2024; 10; 2100; 0; 0; 6; FF
+    Mon Feb 26 00:00:16 2024; 10; 2000; 0; 0; 6; FF
+    Mon Feb 26 00:00:18 2024; 10; 2000; 0; 0; 6; FF
+    Mon Feb 26 00:00:20 2024; 10; 2000; 0; 0; 6; FF
 
 The file name consists of the current date and time, the logging process was started.  
 Sample file content, in CSV-style (currently only with raw values, directly from the Syr):
 
-    2024;02;25; 23;32;41; 20; 5100 mbar; 0; 4507mL; 7; FF
-    2024;02;25; 23;32;43; 20; 5100 mbar; 0; 4510mL; 7; FF
-    2024;02;25; 23;32;45; 20; 5100 mbar; 0; 4513mL; 7; FF
-    2024;02;25; 23;32;47; 20; 5100 mbar; 0; 4519mL; 7; FF
-    2024;02;25; 23;32;50; 20; 5100 mbar; 0; 4522mL; 7; FF
-    2024;02;25; 23;32;52; 20; 5200 mbar; 7; 4528mL; 7; FF
-    2024;02;25; 23;32;54; 20; 5100 mbar; 0; 4531mL; 7; FF
-    2024;02;25; 23;32;56; 20; 5100 mbar; 0; 4537mL; 7; FF
-    2024;02;25; 23;32;59; 20; 5200 mbar; 0; 4540mL; 7; FF
-    2024;02;25; 23;33;01; 20; 5200 mbar; 0; 4543mL; 7; FF
-    2024;02;25; 23;33;03; 20; 5200 mbar; 0; 4546mL; 7; FF
+    2024;02;25; 23;32;41; 20; 5100; 0; 4507; 7; FF
+    2024;02;25; 23;32;43; 20; 5100; 0; 4510; 7; FF
+    2024;02;25; 23;32;45; 20; 5100; 0; 4513; 7; FF
+    2024;02;25; 23;32;47; 20; 5100; 0; 4519; 7; FF
+    2024;02;25; 23;32;50; 20; 5100; 0; 4522; 7; FF
+    2024;02;25; 23;32;52; 20; 5200; 7; 4528; 7; FF
+    2024;02;25; 23;32;54; 20; 5100; 0; 4531; 7; FF
+    2024;02;25; 23;32;56; 20; 5100; 0; 4537; 7; FF
+    2024;02;25; 23;32;59; 20; 5200; 0; 4540; 7; FF
+    2024;02;25; 23;33;01; 20; 5200; 0; 4543; 7; FF
+    2024;02;25; 23;33;03; 20; 5200; 0; 4546; 7; FF
 
 If your Syr is set to imperial units, strange things like F, psi or gallons might appear.  
 Pro tip: Go metric \o/
@@ -161,7 +163,8 @@ The "LAST VOLUME" is the rounded amount of water which flowed during the previou
 
 ---
 After a bit of testing and some days-long data series, it seems as if
-the units do not change when the values increase.
+the units do not change when the values increase.  
+Output with "--raw" enabled:
 
     2024;02;27; 21;29;41; 20; 4600 mbar; 1577; 58470mL; 1; FF
     2024;02;27; 21;29;42; 20; 4700 mbar; 1560; 59203mL; 1; FF
@@ -175,28 +178,39 @@ the units do not change when the values increase.
     2024;02;27; 21;29;55; 20; 5000 mbar; 0; 59617mL; 1; FF
     2024;02;27; 21;29;57; 20; 4900 mbar; 0; 0mL; 60; FF
 
-Next version after this will have the units remove.  
-For compatibility with the original version, the "--raw" parameter can be used to create an unaltered output.
-
-[...]
-
-
 [...]
 
 to be continued ...
 
 ---
-CHANGES 02/2024:
-  - initial q&d version
-  - added file output
-  - added sample output file
-  - added some command line options
-  - added alarm state query
-  - added the delay option
+## NEWS
+
+### CHANGES 2024/02/XX:
+    - initial q&d version
+    - added file output
+    - added sample output file
+    - added some command line options
+    - added alarm state query
+    - added the delay option
+    - removed units from output
+    - added the raw parameter to display the removed units
+
+---
+## TODO
+    - IP address as command line parameter
+    - a "--test" or "--check" parameter to check connection and device
+    - a "--state" parameter to read and display all settings
+    - iOS Shortcuts to change profiles
+    - option to skip saving/displaying data if nothing happens
+    - Octave data reader
+    - SyrSafeTechStat.py app, ncurses-like; with profile switching, etc.
+    - (.)config file; Windoze: where to put this?
+
 
 ---
 Have a nice day  
 FMMT666(ASkr)
+
 
 ---
 [1]: https://www.syr.de/en/Products/CB9D9A72-BC51-40CE-840E-73401981A519/SafeTech-Connect

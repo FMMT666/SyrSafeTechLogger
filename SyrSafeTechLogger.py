@@ -34,12 +34,16 @@ SYR_CMD_PRESSURE    = "BAR"        # pressure in mbar (if imperial maybe psi?; n
 SYR_CMD_FLOW        = "FLO"        # flow in L/h; not very sensitive
 SYR_CMD_VOLUME      = "AVO"        # volume of the current, single water consumption, in mL (always?); (imperial: fl.oz.?)
 SYR_CMD_VOLUME_LAST = "LTV"        # volume of the last,    single water consumption, in Liter
-SYR_CMD_ALARM       = "ALA"        # current alarm state; FF = no alarm,
+SYR_CMD_ALARM       = "ALA"        # current alarm state; FF = no alarm, rest see table below
+SYR_CMD_UNITS       = "UNI"        # units; 0 = metric, 1 = imperial; I always get "mbar" and mL", even in imperial mode; FW bug?
 
 SYR_ERROR_STRING    = "ERROR"      # error string to be returned if something went wrong; maybe "-1" would be better?
 
+SYR_UNITS           = [ " mbar", "mL" ]  # for text/data replacement; imperial yet unknown; my device always puts out " mbar"
+
 APP_NOFILE          = False        # by default, everything is written to a file
 APP_NOSTDOUT        = False        # by default, everything is printed to stdout
+APP_RAW             = False        # by default, everything is printed in a human readable form
 
 # TODO: alarm codes for further anylysis:
 #    FF   NO ALARM
@@ -72,6 +76,7 @@ def PrintUsage():
     print( "  --nostdout    : do not print to stdout (useful when used with nohup)" )
     print( "  --maxpolls=n  : stop after n polls" )
     print( "  --delay=n     : delay between set of polls in seconds; floating point allowed, e.g. --delay=1.5" )
+    print( "  --raw         : print raw data; units 'mbar', 'mL', etc. are not removed" )
 
 
 #############################################################################################################
@@ -130,6 +135,9 @@ if __name__ == "__main__":
         elif args == "--nostdout":
             APP_NOSTDOUT = True
         # ------------------------------
+        elif args == "--raw":
+            APP_RAW = True
+        # ------------------------------
         elif "--maxpolls=" in args:
             try:
                 maxpolls = int( args[11:] )
@@ -182,6 +190,10 @@ if __name__ == "__main__":
                    GetDataRaw( SYR_CMD_VOLUME )      + "; " + \
                    GetDataRaw( SYR_CMD_VOLUME_LAST ) + "; " + \
                    GetDataRaw( SYR_CMD_ALARM )
+
+        if APP_RAW is False:
+            for i in range( len( SYR_UNITS ) ):
+                dataLine = dataLine.replace( SYR_UNITS[i], "" )
 
         if APP_NOSTDOUT is False:
             print( timeHuman + "; " + dataLine )

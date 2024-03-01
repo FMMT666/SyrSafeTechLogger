@@ -5,6 +5,8 @@ Syr SafeTech Connect Data Logger (Quick & Dirty [for now :-])
 
 Reads the most important data from a [Syr SafeTech Connect][1] leakage protection device and logs the data to stdout and into a file.
 
+![](SyrSafeTech.jpg)
+
 ---
 ## Why
 My SafeTech was installed in a remote house a couple of days ago. I intentionally decided to buy one of these, because they can very easily (although not very securely) be controlled or monitored via RestAPI (or MQTT).
@@ -47,30 +49,27 @@ Install "requests" with
 ---
 ## Usage
 
-> For now, set the IP address of your Syr SafeTech Connect device in the variable *SYR_IPADDR*.
+Just execute
 
-Then just execute
+    python SyrSafeTechLogger.py --ipaddr=<IP_ADDRESS_OF_YOUR_SYR>
 
-    python SyrSafeTechLogger.py
-
-and either kill it with CTRL-C or any other kill command.  
+to start it. To terminate execution, either stop it with CTRL-C or any other kill command.  
 Logfile is created in your current working directory.
 
 Command line options:
 
     --help        : print this help
+    --ipaddr=addr : set the IP address of the Syr SafeTech Connect device
+    --henlo       : test presence of the device, print serial number, SW version and then quit
     --nofile      : do not write to a file
     --nostdout    : do not print to stdout (useful when used with nohup)
     --maxpolls=n  : stop after n polls
     --delay=n     : delay between set of polls in seconds; floating point allowed, e.g. --delay=1.5
     --raw         : print raw data; units 'mbar', 'mL', etc. are not removed
 
+For running in the background, on any minicomputer (Odroid, Raspberry Pi, etc.), e.g.:
 
-By default
-
-For running in the background, on any minicomputer (Odroid, Raspberry Pi, etc.):
-
-    nohup python SyrSafeTechLogger.py --nostdout &
+    nohup python SyrSafeTechLogger.py --ipaddr=192.168.1.123 --nostdout &
 
 It is then safe to log out, the script will continue to work in the background.
 
@@ -195,10 +194,14 @@ to be continued ...
     - removed units from output
     - added the raw parameter to display the removed units
 
+### CHANGES 2024/02/XX:
+    - added IP address command line option
+    - added henlo option to check if Syr is present
+    - added a photo
+
+
 ---
 ## TODO
-    - IP address as command line parameter
-    - a "--test" or "--check" parameter to check connection and device
     - a "--state" parameter to read and display all settings
     - iOS Shortcuts to change profiles
     - option to skip saving/displaying data if nothing happens

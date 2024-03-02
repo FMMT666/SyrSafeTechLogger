@@ -26,17 +26,32 @@ SYR_DELAY  = 1                     # delay between a set of requests in seconds
 
 
 #############################################################################################################
-#SYR_CMD_VALVE       = "AB"         # valve state; 1 = open, 2 = closed (according to the manual; but that's wrong, as it seems)
-SYR_CMD_VALVE       = "VLV"        # valve state; 10 = Closed, 11 = Closing, 20 = Open, 21 = Opening, 30 = Undefined
-SYR_CMD_TEMP        = "CEL"        # temperature in 0..1000 representing 0..100.0°C (if imperial maybe 0..100.0F; not sure)
-SYR_CMD_PRESSURE    = "BAR"        # pressure in mbar (if imperial maybe psi?; not sure)
-SYR_CMD_FLOW        = "FLO"        # flow in L/h; not very sensitive
-SYR_CMD_VOLUME      = "AVO"        # volume of the current, single water consumption, in mL (always?); (imperial: fl.oz.?)
-SYR_CMD_VOLUME_LAST = "LTV"        # volume of the last,    single water consumption, in Liter
-SYR_CMD_ALARM       = "ALA"        # current alarm state; FF = no alarm, rest see table below
-SYR_CMD_UNITS       = "UNI"        # units; 0 = metric, 1 = imperial; I always get "mbar" and mL", even in imperial mode; FW bug?
-SYR_CMD_VERSION     = "VER"        # firmware version; e.g. "Safe-Tech V4.04"
-SYR_CMD_SERIAL      = "SRN"        # serial number; e.g. "123456789"
+SYR_CMD_VALVE           = "AB"         # valve state; 1 = open, 2 = closed (according to the manual; but that's wrong, as it seems)
+SYR_CMD_VALVE           = "VLV"        # valve state; 10 = Closed, 11 = Closing, 20 = Open, 21 = Opening, 30 = Undefined
+SYR_CMD_TEMP            = "CEL"        # temperature in 0..1000 representing 0..100.0°C (if imperial maybe 0..100.0F; not sure)
+SYR_CMD_PRESSURE        = "BAR"        # pressure in mbar (if imperial maybe psi?; not sure)
+SYR_CMD_FLOW            = "FLO"        # flow in L/h; not very sensitive
+SYR_CMD_VOLUME          = "AVO"        # volume of the current, single water consumption, in mL (always?); (imperial: fl.oz.?)
+SYR_CMD_VOLUME_LAST     = "LTV"        # volume of the last,    single water consumption, in Liter
+SYR_CMD_ALARM           = "ALA"        # current alarm state; FF = no alarm, rest see table below
+SYR_CMD_UNITS           = "UNI"        # units; 0 = metric, 1 = imperial; I always get "mbar" and mL", even in imperial mode; FW bug?
+SYR_CMD_VERSION         = "VER"        # firmware version; e.g. "Safe-Tech V4.04"
+SYR_CMD_SERIAL          = "SRN"        # serial number; e.g. "123456789"
+SYR_CMD_PROFILE         = "PRF"        # read or set profile number (1..8) 
+SYR_CMD_PROFILENUMS     = "PRN"        # read number of profiles (1..8)
+SYR_CMD_PROFILE_X_AVAIL = "PA"         # (PA1..PA8) read if profile X available; 0 = no, 1 = yes
+SYR_CMD_PROFILE_X_NAME  = "PN"         # (PN1..PN8) read profile X name
+SYR_CMD_PROFILE_X_VOL   = "PV"         # (PV1..PV8) read profile X volume level
+SYR_CMD_PROFILE_X_TIME  = "PT"         # (PT1..PT8) read profile X time level
+SYR_CMD_PROFILE_X_FLOW  = "PF"         # (PF1..PF8) read profile X flow level
+SYR_CMD_PROFILE_X_MLEAK = "PM"         # (PM1..PM8) read profile X micro leakage; 0 = no, 1 = yes
+SYR_CMD_PROFILE_X_RTIME = "PR"         # (PR1..PR8) read profile X return time; 0 = never, 1..720 hours (30 days)
+SYR_CMD_PROFILE_X_BUZZ  = "PB"         # (PB1..PB8) read profile X buzzer; 0 = off, 1 = on
+SYR_CMD_PROFILE_X_LEAKW = "PW"         # (PW1..PW8) read profile X leakage warning; 0 = off, 1 = on
+SYR_CMD_TMP             = "TMP"        # leakage temporary deactivation; 0 = disabled, 0-4294967295 seconds
+
+
+
 
 SYR_ERROR_STRING    = "ERROR"      # error string to be returned if something went wrong; maybe "-1" would be better?
 
@@ -46,6 +61,7 @@ APP_NOFILE          = False        # by default, everything is written to a file
 APP_NOSTDOUT        = False        # by default, everything is printed to stdout
 APP_RAW             = False        # by default, everything is printed in a human readable form
 APP_HENLO           = False        # by default, no "henlo" test
+APP_STATUS_ONLY     = False        # by default, no status only
 
 # TODO: alarm codes for further anylysis:
 #    FF   NO ALARM
@@ -81,6 +97,7 @@ def PrintUsage():
     print( "  --maxpolls=n  : stop after n polls" )
     print( "  --delay=n     : delay between set of polls in seconds; floating point allowed, e.g. --delay=1.5" )
     print( "  --raw         : print raw data; units 'mbar', 'mL', etc. are not removed" )
+    print( "  --status      : print the current status and settings of the Syr, then quit" )
 
 
 #############################################################################################################
@@ -124,6 +141,36 @@ def GetDataRaw( command, timeout = 5 ):
     return SYR_ERROR_STRING
 
 
+#############################################################################################################
+## GetAndPrintStatus
+#############################################################################################################
+def GetAndPrintStatus():
+    """Read (almost) all settings the Syr SafeTech and print them to stdout.
+    """
+
+    print( "  Profiles available ....... " + GetDataRaw( SYR_CMD_PROFILENUMS ) )
+    print( "  Profile numbers .......... ", end = "" )
+    for i in range( 1, 9 ):
+        if ( ret := GetDataRaw( SYR_CMD_PROFILE_X_AVAIL + str(i) ) ) != SYR_ERROR_STRING:
+            if ret == "1":
+                print( str(i), end = " " )
+        else:
+            # not nice :-/
+            print( SYR_ERROR_STRING, end = " " )
+    print()
+    print( "  Profile selected ......... " + (profNum:=GetDataRaw( SYR_CMD_PROFILE )) )
+    print( "  Profile " + str(profNum ) + " name ........... " + GetDataRaw( SYR_CMD_PROFILE_X_NAME + str(profNum ) ) )
+    print( "  Profile " + str(profNum ) + " volume level ... " + GetDataRaw( SYR_CMD_PROFILE_X_VOL + str(profNum ) ) )
+    print( "  Profile " + str(profNum ) + " time level ..... " + GetDataRaw( SYR_CMD_PROFILE_X_TIME + str(profNum ) ) )
+    print( "  Profile " + str(profNum ) + " flow level ..... " + GetDataRaw( SYR_CMD_PROFILE_X_FLOW + str(profNum ) ) )
+    print( "  Profile " + str(profNum ) + " microleakage ... " + GetDataRaw( SYR_CMD_PROFILE_X_MLEAK + str(profNum ) ) )
+    print( "  Profile " + str(profNum ) + " return time .... " + GetDataRaw( SYR_CMD_PROFILE_X_RTIME + str(profNum ) ) )
+    print( "  Profile " + str(profNum ) + " buzzer ......... " + GetDataRaw( SYR_CMD_PROFILE_X_BUZZ + str(profNum ) ) )
+    print( "  Profile " + str(profNum ) + " leakage warning: " + GetDataRaw( SYR_CMD_PROFILE_X_LEAKW + str(profNum ) ) )
+    print( "  Leakage temp disable ..... " + GetDataRaw( SYR_CMD_TMP) )
+
+
+
 
 #############################################################################################################
 if __name__ == "__main__":
@@ -159,6 +206,9 @@ if __name__ == "__main__":
         # ------------------------------
         elif args == "--henlo":
             APP_HENLO = True
+        # ------------------------------
+        elif args == "--status":
+            APP_STATUS_ONLY = True
         # ------------------------------
         elif "--maxpolls=" in args:
             try:
@@ -205,7 +255,6 @@ if __name__ == "__main__":
         sys.exit( 0 )
 
     # -------------------------------------------------------------------------------------------------------
-
     # check if the device is there and alive
     if ( syrVersion := GetDataRaw( SYR_CMD_VERSION ) ) == SYR_ERROR_STRING:
         print( "ERROR: no response from Syr SafeTech Connect device" )
@@ -214,13 +263,13 @@ if __name__ == "__main__":
         print( "ERROR: no response from Syr SafeTech Connect device" )
         sys.exit( 0 )
 
-    if APP_HENLO:
+    if APP_HENLO or APP_STATUS_ONLY:
         print( "Found device:" )
-        print( "  Serial : " + syrSerial )
-        print( "  Version: " + syrVersion )
+        print( "  Serial ................... " + syrSerial )
+        print( "  Version .................. " + syrVersion )
+        if APP_STATUS_ONLY:
+            GetAndPrintStatus()
         sys.exit( 0 )
-
-
 
     if APP_NOFILE is False:
         fout = open( time.strftime("%Y%m%d%H%M%S") + "_SyrSafeTech.log", "w+t" )
@@ -228,6 +277,7 @@ if __name__ == "__main__":
         fout = None
 
 
+    # -------------------------------------------------------------------------------------------------------
     while True:
         timeHuman   = time.asctime()
         timeMachine = time.strftime("%Y;%m;%d; %H;%M;%S")

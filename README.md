@@ -194,15 +194,15 @@ to be continued ...
     - removed units from output
     - added the raw parameter to display the removed units
 
-### CHANGES 2024/02/XX:
+### CHANGES 2024/03/XX:
     - added IP address command line option
     - added henlo option to check if Syr is present
     - added a photo
+    - added status parameter (in work)
 
 
 ---
 ## TODO
-    - a "--state" parameter to read and display all settings
     - iOS Shortcuts to change profiles
     - option to skip saving/displaying data if nothing happens
     - Octave data reader

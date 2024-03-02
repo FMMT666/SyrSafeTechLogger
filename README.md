@@ -56,7 +56,16 @@ Just execute
 to start it. To terminate execution, either stop it with CTRL-C or any other kill command.  
 Logfile is created in your current working directory.
 
-Command line options:
+Prior to logging, it might be beneficial to check whether or not the Syr SafeTech is
+available and you are using the correct IP address:
+
+    python SyrSafeTechLogger.py --ipaddr=<IP_ADDRESS_OF_YOUR_SYR> --henlo
+
+For a more detailed overview of the Syr SafeTech's state, use:
+
+    python SyrSafeTechLogger.py --ipaddr=<IP_ADDRESS_OF_YOUR_SYR> --status
+
+Other command line options:
 
     --help        : print this help
     --ipaddr=addr : set the IP address of the Syr SafeTech Connect device
@@ -66,6 +75,7 @@ Command line options:
     --maxpolls=n  : stop after n polls
     --delay=n     : delay between set of polls in seconds; floating point allowed, e.g. --delay=1.5
     --raw         : print raw data; units 'mbar', 'mL', etc. are not removed
+    --status      : print the current status and settings of the Syr, then quit
 
 For running in the background, on any minicomputer (Odroid, Raspberry Pi, etc.), e.g.:
 
@@ -160,6 +170,33 @@ The "LAST VOLUME" is the rounded amount of water which flowed during the previou
     AE   WARNING VOLUME LEAKAGE
     AF   ALARM NO POWER SUPPLY
 
+The "--status" parameter outputs something comparable to this:
+
+    Found device:
+      Serial ................... 123456789
+      Version .................. Safe-Tech V4.04
+      Profiles available ....... 3
+      Profile numbers .......... 1 2 3 
+      Profile selected ......... 3
+      Profile 3 name ........... nope
+      Profile 3 volume level ... 10
+      Profile 3 time level ..... 30
+      Profile 3 flow level ..... 3500
+      Profile 3 microleakage ... 1
+      Profile 3 return time .... 0
+      Profile 3 buzzer ......... 1
+      Profile 3 leakage warning. 0
+      Leakage temp disable ..... 0
+      Buzzer ................... 1
+      Conductivity limit ....... 0
+      Conductivity factor ...... 20
+      Leakage warning .......... 90
+      Next maintenance ......... 25.01.2025
+      Battery voltage .......... 9,55
+      Power supply voltage ..... has issues; not supported yet
+      RTC ...................... 1709424581
+
+
 ---
 After a bit of testing and some days-long data series, it seems as if
 the units do not change when the values increase.  
@@ -198,11 +235,13 @@ to be continued ...
     - added IP address command line option
     - added henlo option to check if Syr is present
     - added a photo
-    - added status parameter (in work)
+    - added status parameter
+    - added more info for status
 
 
 ---
 ## TODO
+    - DC voltage supply readout does not work; requires admin mode??
     - iOS Shortcuts to change profiles
     - option to skip saving/displaying data if nothing happens
     - Octave data reader

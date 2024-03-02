@@ -7,7 +7,7 @@
 #
 # https://github.com/FMMT666/SyrSafeTechLogger
 #
-# FMMT666(ASkr) 02/2024
+# FMMT666(ASkr) 02/2024, 03/2024
 #
 
 
@@ -26,29 +26,37 @@ SYR_DELAY  = 1                     # delay between a set of requests in seconds
 
 
 #############################################################################################################
-SYR_CMD_VALVE           = "AB"         # valve state; 1 = open, 2 = closed (according to the manual; but that's wrong, as it seems)
-SYR_CMD_VALVE           = "VLV"        # valve state; 10 = Closed, 11 = Closing, 20 = Open, 21 = Opening, 30 = Undefined
-SYR_CMD_TEMP            = "CEL"        # temperature in 0..1000 representing 0..100.0°C (if imperial maybe 0..100.0F; not sure)
-SYR_CMD_PRESSURE        = "BAR"        # pressure in mbar (if imperial maybe psi?; not sure)
-SYR_CMD_FLOW            = "FLO"        # flow in L/h; not very sensitive
-SYR_CMD_VOLUME          = "AVO"        # volume of the current, single water consumption, in mL (always?); (imperial: fl.oz.?)
-SYR_CMD_VOLUME_LAST     = "LTV"        # volume of the last,    single water consumption, in Liter
-SYR_CMD_ALARM           = "ALA"        # current alarm state; FF = no alarm, rest see table below
-SYR_CMD_UNITS           = "UNI"        # units; 0 = metric, 1 = imperial; I always get "mbar" and mL", even in imperial mode; FW bug?
-SYR_CMD_VERSION         = "VER"        # firmware version; e.g. "Safe-Tech V4.04"
-SYR_CMD_SERIAL          = "SRN"        # serial number; e.g. "123456789"
-SYR_CMD_PROFILE         = "PRF"        # read or set profile number (1..8) 
-SYR_CMD_PROFILENUMS     = "PRN"        # read number of profiles (1..8)
-SYR_CMD_PROFILE_X_AVAIL = "PA"         # (PA1..PA8) read if profile X available; 0 = no, 1 = yes
-SYR_CMD_PROFILE_X_NAME  = "PN"         # (PN1..PN8) read profile X name
-SYR_CMD_PROFILE_X_VOL   = "PV"         # (PV1..PV8) read profile X volume level
-SYR_CMD_PROFILE_X_TIME  = "PT"         # (PT1..PT8) read profile X time level
-SYR_CMD_PROFILE_X_FLOW  = "PF"         # (PF1..PF8) read profile X flow level
-SYR_CMD_PROFILE_X_MLEAK = "PM"         # (PM1..PM8) read profile X micro leakage; 0 = no, 1 = yes
-SYR_CMD_PROFILE_X_RTIME = "PR"         # (PR1..PR8) read profile X return time; 0 = never, 1..720 hours (30 days)
-SYR_CMD_PROFILE_X_BUZZ  = "PB"         # (PB1..PB8) read profile X buzzer; 0 = off, 1 = on
-SYR_CMD_PROFILE_X_LEAKW = "PW"         # (PW1..PW8) read profile X leakage warning; 0 = off, 1 = on
-SYR_CMD_TMP             = "TMP"        # leakage temporary deactivation; 0 = disabled, 0-4294967295 seconds
+SYR_CMD_VALVE            = "AB"         # valve state; 1 = open, 2 = closed (according to the manual; but that's wrong, as it seems)
+SYR_CMD_VALVE            = "VLV"        # valve state; 10 = Closed, 11 = Closing, 20 = Open, 21 = Opening, 30 = Undefined
+SYR_CMD_TEMP             = "CEL"        # temperature in 0-1000 representing 0..100.0°C (if imperial maybe 0-100.0F; not sure)
+SYR_CMD_PRESSURE         = "BAR"        # pressure in mbar (if imperial maybe psi?; not sure)
+SYR_CMD_FLOW             = "FLO"        # flow in L/h; not very sensitive
+SYR_CMD_VOLUME           = "AVO"        # volume of the current, single water consumption, in mL (always?); (imperial: fl.oz.?)
+SYR_CMD_VOLUME_LAST      = "LTV"        # volume of the last,    single water consumption, in Liter
+SYR_CMD_ALARM            = "ALA"        # current alarm state; FF = no alarm, rest see table below
+SYR_CMD_UNITS            = "UNI"        # units; 0 = metric, 1 = imperial; I always get "mbar" and mL", even in imperial mode; FW bug?
+SYR_CMD_VERSION          = "VER"        # firmware version; e.g. "Safe-Tech V4.04"
+SYR_CMD_SERIAL           = "SRN"        # serial number; e.g. "123456789"
+SYR_CMD_PROFILE          = "PRF"        # read or set profile number (1..8) 
+SYR_CMD_PROFILENUMS      = "PRN"        # read number of profiles (1..8)
+SYR_CMD_PROFILE_X_AVAIL  = "PA"         # (PA1..PA8) read if profile X available; 0 = no, 1 = yes
+SYR_CMD_PROFILE_X_NAME   = "PN"         # (PN1..PN8) read profile X name
+SYR_CMD_PROFILE_X_VOL    = "PV"         # (PV1..PV8) read profile X volume level
+SYR_CMD_PROFILE_X_TIME   = "PT"         # (PT1..PT8) read profile X time level
+SYR_CMD_PROFILE_X_FLOW   = "PF"         # (PF1..PF8) read profile X flow level
+SYR_CMD_PROFILE_X_MLEAK  = "PM"         # (PM1..PM8) read profile X micro leakage; 0 = no, 1 = yes
+SYR_CMD_PROFILE_X_RTIME  = "PR"         # (PR1..PR8) read profile X return time; 0 = never, 1-720 hours (30 days)
+SYR_CMD_PROFILE_X_BUZZ   = "PB"         # (PB1..PB8) read profile X buzzer; 0 = off, 1 = on
+SYR_CMD_PROFILE_X_LEAKW  = "PW"         # (PW1..PW8) read profile X leakage warning; 0 = off, 1 = on
+SYR_CMD_TMP              = "TMP"        # leakage temporary deactivation; 0 = disabled, 0-4294967295 seconds
+SYR_CMD_BUZZER           = "BUZ"        # 0 = disabled, 1 = enabled
+SYR_CMD_CONDUCT_LIMIT    = "CNL"        # conductivity limit; 0-5000uS/cm
+SYR_CMD_CONDUCT_FACTOR   = "CNF"        # conductivity factor; 5-50 representing 0.5-5.0
+SYR_CMD_LEAKAGE_WARNING  = "LWT"        # leakage warning notification; 80-99 in percent
+SYR_CMD_NEXT_MAINTENANCE = "SRV"        # next maintenance date; dd.mm.yyyy 
+SYR_CMD_BATTERY          = "BAT"        #  battery voltage;   1/100V x.xx
+SYR_CMD_VOLTAGE          = "NET"        #  dc supply voltage; 1/100V x.xx
+SYR_CMD_RTC              = "RTC"        #  linux epoch time; 0-4294967295
 
 
 
@@ -166,10 +174,19 @@ def GetAndPrintStatus():
     print( "  Profile " + str(profNum ) + " microleakage ... " + GetDataRaw( SYR_CMD_PROFILE_X_MLEAK + str(profNum ) ) )
     print( "  Profile " + str(profNum ) + " return time .... " + GetDataRaw( SYR_CMD_PROFILE_X_RTIME + str(profNum ) ) )
     print( "  Profile " + str(profNum ) + " buzzer ......... " + GetDataRaw( SYR_CMD_PROFILE_X_BUZZ + str(profNum ) ) )
-    print( "  Profile " + str(profNum ) + " leakage warning: " + GetDataRaw( SYR_CMD_PROFILE_X_LEAKW + str(profNum ) ) )
+    print( "  Profile " + str(profNum ) + " leakage warning. " + GetDataRaw( SYR_CMD_PROFILE_X_LEAKW + str(profNum ) ) )
     print( "  Leakage temp disable ..... " + GetDataRaw( SYR_CMD_TMP) )
+    print( "  Buzzer ................... " + GetDataRaw( SYR_CMD_BUZZER) )
+    print( "  Conductivity limit ....... " + GetDataRaw( SYR_CMD_CONDUCT_LIMIT) )
+    print( "  Conductivity factor ...... " + GetDataRaw( SYR_CMD_CONDUCT_FACTOR) )
+    print( "  Leakage warning .......... " + GetDataRaw( SYR_CMD_LEAKAGE_WARNING) )
+    print( "  Next maintenance ......... " + GetDataRaw( SYR_CMD_NEXT_MAINTENANCE) )
+    print( "  Battery voltage .......... " + GetDataRaw( SYR_CMD_BATTERY) )
 
+#    print( "  Power supply voltage ..... " + GetDataRaw( SYR_CMD_VOLTAGE) )
+    print( "  Power supply voltage ..... has issues; not supported yet" )
 
+    print( "  RTC ...................... " + GetDataRaw( SYR_CMD_RTC) )
 
 
 #############################################################################################################

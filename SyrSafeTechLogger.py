@@ -18,12 +18,10 @@ import re
 import requests
 
 
+#############################################################################################################
 SYR_IPADDR = "0.0.0.0"             # IP address of Syr (set by command line option "--ipaddr=addr")
 SYR_UNITS  = "metric"              # unused yet; only metric so far (°C, bar, Liter)
 SYR_DELAY  = 1                     # delay between a set of requests in seconds
-
-
-
 
 #############################################################################################################
 SYR_CMD_VALVE            = "AB"         # valve state; 1 = open, 2 = closed (according to the manual; but that's wrong, as it seems)
@@ -58,18 +56,21 @@ SYR_CMD_BATTERY          = "BAT"        #  battery voltage;   1/100V x.xx
 SYR_CMD_VOLTAGE          = "NET"        #  dc supply voltage; 1/100V x.xx
 SYR_CMD_RTC              = "RTC"        #  linux epoch time; 0-4294967295
 
-
-
-
 SYR_ERROR_STRING    = "ERROR"      # error string to be returned if something went wrong; maybe "-1" would be better?
 
 SYR_UNITS           = [ " mbar", "mL" ]  # for text/data replacement; imperial yet unknown; my device always puts out " mbar"
 
+#############################################################################################################
 APP_NOFILE          = False        # by default, everything is written to a file
 APP_NOSTDOUT        = False        # by default, everything is printed to stdout
 APP_RAW             = False        # by default, everything is printed in a human readable form
-APP_HENLO           = False        # by default, no "henlo" test
-APP_STATUS_ONLY     = False        # by default, no status only
+
+APP_CMD_HENLO       = 1            # typos and enums sock; the cool thing is that this copilot thingy :)
+APP_CMD_STATUS      = 2
+APP_CMD_PROFILE     = 3
+
+APP_COMMAND         = None         # wild mix
+
 
 # TODO: alarm codes for further anylysis:
 #    FF   NO ALARM
@@ -89,6 +90,7 @@ APP_STATUS_ONLY     = False        # by default, no status only
 #    AE   WARNING VOLUME LEAKAGE
 #    AF   ALARM NO POWER SUPPLY
 
+
 #############################################################################################################
 ## PrintUsage
 #############################################################################################################
@@ -106,6 +108,8 @@ def PrintUsage():
     print( "  --delay=n     : delay between set of polls in seconds; floating point allowed, e.g. --delay=1.5" )
     print( "  --raw         : print raw data; units 'mbar', 'mL', etc. are not removed" )
     print( "  --status      : print the current status and settings of the Syr, then quit" )
+    print( "  --profile     : print name and number of active profile, then quit" )
+
 
 
 #############################################################################################################
@@ -222,10 +226,14 @@ if __name__ == "__main__":
             APP_RAW = True
         # ------------------------------
         elif args == "--henlo":
-            APP_HENLO = True
+            # only accept the first command
+            if APP_COMMAND is None:
+                APP_COMMAND = APP_CMD_HENLO
         # ------------------------------
         elif args == "--status":
-            APP_STATUS_ONLY = True
+            # only accept the first command
+            if APP_COMMAND is None:
+                APP_COMMAND = APP_CMD_STATUS
         # ------------------------------
         elif "--maxpolls=" in args:
             try:
@@ -254,6 +262,11 @@ if __name__ == "__main__":
                 PrintUsage()
                 sys.exit( 0 )
         # ------------------------------
+        elif args == "--profile":
+            # only accept the first command
+            if APP_COMMAND is None:
+                APP_COMMAND = APP_CMD_PROFILE
+        # ------------------------------
         else:
             if args == "--maxpolls" or args == "--delay" or args == "--ipaddr":
                 print( "ERROR: missing value for " + args )
@@ -280,11 +293,16 @@ if __name__ == "__main__":
         print( "ERROR: no response from Syr SafeTech Connect device" )
         sys.exit( 0 )
 
-    if APP_HENLO or APP_STATUS_ONLY:
+    if APP_COMMAND == APP_CMD_PROFILE:
+        print( "  Profile selected ......... " + (profNum:=GetDataRaw( SYR_CMD_PROFILE )) )
+        print( "  Profile " + str(profNum ) + " name ........... " + GetDataRaw( SYR_CMD_PROFILE_X_NAME + str(profNum ) ) )
+        sys.exit( 0 )
+
+    if APP_COMMAND == APP_CMD_HENLO or APP_COMMAND == APP_CMD_STATUS:
         print( "Found device:" )
         print( "  Serial ................... " + syrSerial )
         print( "  Version .................. " + syrVersion )
-        if APP_STATUS_ONLY:
+        if APP_COMMAND == APP_CMD_STATUS:
             GetAndPrintStatus()
         sys.exit( 0 )
 

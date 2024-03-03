@@ -1,7 +1,7 @@
 Syr SafeTech Logger
 ===================
 
-Syr SafeTech Connect Data Logger (Quick & Dirty [for now :-])
+Syr SafeTech Connect Data Logger (and soon Control too ;)
 
 Reads the most important data from a [Syr SafeTech Connect][1] leakage protection device and logs the data to stdout and into a file.
 
@@ -76,6 +76,8 @@ Other command line options:
     --delay=n     : delay between set of polls in seconds; floating point allowed, e.g. --delay=1.5
     --raw         : print raw data; units 'mbar', 'mL', etc. are not removed
     --status      : print the current status and settings of the Syr, then quit
+    --profile     : print name and number of active profile, then quit
+
 
 For running in the background, on any minicomputer (Odroid, Raspberry Pi, etc.), e.g.:
 
@@ -113,7 +115,7 @@ stdout output (depending on your locali-s/z-ation):
     Mon Feb 26 00:00:18 2024; 10; 2000; 0; 0; 6; FF
     Mon Feb 26 00:00:20 2024; 10; 2000; 0; 0; 6; FF
 
-The file name consists of the current date and time, the logging process was started.  
+The logfile name consists of the current date and time, the logging process was started.  
 Sample file content, in CSV-style (currently only with raw values, directly from the Syr):
 
     2024;02;25; 23;32;41; 20; 5100; 0; 4507; 7; FF
@@ -127,6 +129,9 @@ Sample file content, in CSV-style (currently only with raw values, directly from
     2024;02;25; 23;32;59; 20; 5200; 0; 4540; 7; FF
     2024;02;25; 23;33;01; 20; 5200; 0; 4543; 7; FF
     2024;02;25; 23;33;03; 20; 5200; 0; 4546; 7; FF
+
+Some more logfile samples, albeit some of them might be in an older "format", are
+included in this Git.
 
 If your Syr is set to imperial units, strange things like F, psi or gallons might appear.  
 Pro tip: Go metric \o/
@@ -237,12 +242,17 @@ to be continued ...
     - added a photo
     - added status parameter
     - added more info for status
+    - added profile parameter
+    - reworked some internals
 
 
 ---
 ## TODO
-    - DC voltage supply readout does not work; requires admin mode??
+    - switch profiles
     - iOS Shortcuts to change profiles
+    - reset/ack alarm
+    - iOS Shortcuts to reset/ack an alarm
+    - DC voltage supply readout does not work; requires admin mode??
     - option to skip saving/displaying data if nothing happens
     - Octave data reader
     - SyrSafeTechStat.py app, ncurses-like; with profile switching, etc.

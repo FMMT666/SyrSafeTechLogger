@@ -1,9 +1,12 @@
-Syr SafeTech Logger
-===================
+Syr SafeTech Logger & Control
+=============================
 
-Syr SafeTech Connect Data Logger (and soon Control too ;)
+Syr SafeTech Connect Data Logger
 
 Reads the most important data from a [Syr SafeTech Connect][1] leakage protection device and logs the data to stdout and into a file.
+
+Can also be used to control some functions of the device.  
+Maybe even more in the future.
 
 ![](SyrSafeTech.jpg)
 
@@ -11,7 +14,7 @@ Reads the most important data from a [Syr SafeTech Connect][1] leakage protectio
 ## Why
 My SafeTech was installed in a remote house a couple of days ago. I intentionally decided to buy one of these, because they can very easily (although not very securely) be controlled or monitored via RestAPI (or MQTT).
 
-I very quickly discovered that my (long-term) plan to integrate this into home automation at some point had to be brought forward *right now*, because the Syr Connect cloud, to put it diplomatically, is horseshite and doesn't work at all (although the device itself is quite okay).
+I very quickly discovered that my (long-term) plan to integrate this into home automation at some point had to be brought forward *right now*, because the Syr Connect cloud, to put it diplomatically, is utter horseshite and doesn't work at all (the device itself is quite okay).
 
 All of a sudden, after only one day, it started to shutdown due to the "time level" setting, for which a maximum time of 30 minutes constant water flow was programmed. The device closed the valve but the app did tell no more. Nice. Not.  
 Btw, in this state the app only gives you the option to open the valve or abort. State and statistics cannot be viewed prior
@@ -27,6 +30,11 @@ if the house is already under water. Nice. (*1*)
 Logfile (in an older format though) attached for the fun of it. This file does not have the (later added) alarm state in it.
 
 Maybe the code is helpful for some of you too.
+
+---
+I hadn't initially planned to implement device control as well. However, after several instances of going hours without water because I forgot to reprogram the Syr from "absent" to "present", I found myself in need of a better and quicker way to reactivate the water supply.
+
+Displaying "an error occurred" or simply a rotating icon seem to be the only functionalities this horsehite app possesses. Even when it's supposedly "working", it takes five clicks (six if the app has logged you out, seven if an alarm has occurred that needs to be acknowledged), each with a 50% chance of a fatal deadlock, to reach the page where profiles can be selected. After selecting a new one, the rotating icon spins indefinitely, necessitating the closure of the app.
 
 ---
 (*1*) Actually it was a dripping water tap, about one drop every 2s and a leaking toilet flush.
@@ -77,9 +85,10 @@ Other command line options:
     --raw         : print raw data; units 'mbar', 'mL', etc. are not removed
     --status      : print the current status and settings of the Syr, then quit
     --profile     : print name and number of active profile, then quit
+    --profile=n   : select and activate profile number n
 
 
-For running in the background, on any minicomputer (Odroid, Raspberry Pi, etc.), e.g.:
+For running in the background, on any server or minicomputer (Odroid, Raspberry Pi, etc.), e.g.:
 
     nohup python SyrSafeTechLogger.py --ipaddr=192.168.1.123 --nostdout &
 
@@ -244,14 +253,17 @@ to be continued ...
     - added more info for status
     - added profile parameter
     - reworked some internals
+    - added set profile parameter
 
 
 ---
 ## TODO
-    - switch profiles
     - iOS Shortcuts to change profiles
     - reset/ack alarm
     - iOS Shortcuts to reset/ack an alarm
+    - show all/selected profiles' data
+    - modify profiles
+    - ClearDataRaw() function (which e.g. then calls SetDataRaw( ..., useCLR=True) )
     - DC voltage supply readout does not work; requires admin mode??
     - option to skip saving/displaying data if nothing happens
     - Octave data reader

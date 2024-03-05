@@ -24,8 +24,8 @@ SYR_UNITS  = "metric"              # unused yet; only metric so far (°C, bar, L
 SYR_DELAY  = 1                     # delay between a set of requests in seconds
 
 #############################################################################################################
-SYR_CMD_VALVE            = "AB"         # valve state; 1 = open, 2 = closed (according to the manual; but that's wrong, as it seems)
-SYR_CMD_VALVE            = "VLV"        # valve state; 10 = Closed, 11 = Closing, 20 = Open, 21 = Opening, 30 = Undefined
+SYR_CMD_SHUTOFF          = "AB"         # valve state; 1 = opened, 2 = closed (according to the manual; but that's wrong, as it seems)
+SYR_CMD_VALVE            = "VLV"        # valve state; 10 = closed, 11 = closing, 20 = open, 21 = opening, 30 = undefined
 SYR_CMD_TEMP             = "CEL"        # temperature in 0-1000 representing 0..100.0°C (if imperial maybe 0-100.0F; not sure)
 SYR_CMD_PRESSURE         = "BAR"        # pressure in mbar (if imperial maybe psi?; not sure)
 SYR_CMD_FLOW             = "FLO"        # flow in L/h; not very sensitive
@@ -68,6 +68,7 @@ APP_RAW             = False        # by default, everything is printed in a huma
 APP_CMD_HENLO       = 1            # typos and enums sock; the cool thing is that this copilot thingy :)
 APP_CMD_STATUS      = 2
 APP_CMD_PROFILE     = 3
+APP_CMD_PROFILE_SET = 4
 
 APP_COMMAND         = None         # wild mix
 
@@ -109,6 +110,7 @@ def PrintUsage():
     print( "  --raw         : print raw data; units 'mbar', 'mL', etc. are not removed" )
     print( "  --status      : print the current status and settings of the Syr, then quit" )
     print( "  --profile     : print name and number of active profile, then quit" )
+    print( "  --profile=n   : select and activate profile number n" )
 
 
 
@@ -133,7 +135,7 @@ def CheckIPv4( ipaddr ):
 def GetDataRaw( command, timeout = 5 ):
     """Read data from Syr SafeTech
     
-    command: RestAPI command in lower or upper case letters. E.g. "AVO", "CEL", ...
+    command: Command as string in lower or upper case letters. E.g. "AVO", "CEL", ...
     timeout: seconds to wait for a response
 
     Returns: the raw value of the requested command or "ERROR" if no response
@@ -148,6 +150,42 @@ def GetDataRaw( command, timeout = 5 ):
     if response.status_code == 200:
         data = response.json()
         return data.get( 'get' + command )
+
+    # just in case; unused; will not be reached
+    return SYR_ERROR_STRING
+
+
+#############################################################################################################
+## SetData
+#############################################################################################################
+def SetDataRaw( command, parameter, timeout = 5, useCLR = False):
+    """Write data to a Syr SafeTech
+    
+    command  : Command as string in lower or upper case letters. E.g. "PRF", "PN1", "ADM" ...
+    parameter: The parameter to be set as a string. E.g. "0", "1", "(1)", "(2)f" 
+    timeout  : seconds to wait for a response
+    useCLR   : if true, use "clr" instead of "set", e.g. for a ".../clr/ADM" command to reset admin rights.
+
+    Returns: the raw value of the requested command or "ERROR" if no response
+    """
+    command = command.upper()
+    strReq = "http://" + SYR_IPADDR + ":5333/safe-tec/" + ( "clr/" if useCLR else "set/" ) + command + "/" + parameter
+
+    try:
+#        response = requests.get( "http://" + SYR_IPADDR + ":5333/safe-tec/set/" + command + "/" + parameter, timeout = timeout )
+        response = requests.get( strReq, timeout = timeout )
+
+    except:
+        # one for all
+        return SYR_ERROR_STRING
+
+    if response.status_code == 200:
+        data = response.json()
+        # TODO: the responses are manifold; needs to be checked
+        #       set/PRF/3    -->   {"setPRF3":"OK"}
+        #       set/ADM(1)   -->   {"setADM(1)":"SERVICE"}
+        return data
+#        return data.get( 'set' + command )
 
     # just in case; unused; will not be reached
     return SYR_ERROR_STRING
@@ -267,6 +305,19 @@ if __name__ == "__main__":
             if APP_COMMAND is None:
                 APP_COMMAND = APP_CMD_PROFILE
         # ------------------------------
+        elif "--profile=" in args:
+            # only accept the first command
+            if APP_COMMAND is None:
+                APP_COMMAND = APP_CMD_PROFILE_SET
+            try:
+                profNumSet = int( args[10:] )
+                if profNumSet < 1 or profNumSet > 8:
+                    raise ValueError
+            except:
+                print( "ERROR: invalid value for --profile" )
+                PrintUsage()
+                sys.exit( 0 )
+        # ------------------------------
         else:
             if args == "--maxpolls" or args == "--delay" or args == "--ipaddr":
                 print( "ERROR: missing value for " + args )
@@ -293,9 +344,15 @@ if __name__ == "__main__":
         print( "ERROR: no response from Syr SafeTech Connect device" )
         sys.exit( 0 )
 
-    if APP_COMMAND == APP_CMD_PROFILE:
+    if APP_COMMAND == APP_CMD_PROFILE or APP_COMMAND == APP_CMD_PROFILE_SET:
         print( "  Profile selected ......... " + (profNum:=GetDataRaw( SYR_CMD_PROFILE )) )
-        print( "  Profile " + str(profNum ) + " name ........... " + GetDataRaw( SYR_CMD_PROFILE_X_NAME + str(profNum ) ) )
+        print( "  Profile " + profNum + " name ........... " + GetDataRaw( SYR_CMD_PROFILE_X_NAME + profNum ) )
+        if APP_COMMAND == APP_CMD_PROFILE_SET:
+            # profNum is a string
+            if str(profNumSet) == profNum:
+                print( "  Profile " + profNum + " ................ already active" )
+            else:
+                print( "  Setting profile " + str(profNumSet) + "......... " + str( SetDataRaw( SYR_CMD_PROFILE, str(profNumSet ) ) ) )
         sys.exit( 0 )
 
     if APP_COMMAND == APP_CMD_HENLO or APP_COMMAND == APP_CMD_STATUS:

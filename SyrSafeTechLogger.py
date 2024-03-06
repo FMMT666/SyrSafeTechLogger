@@ -31,7 +31,9 @@ SYR_CMD_PRESSURE         = "BAR"        # pressure in mbar (if imperial maybe ps
 SYR_CMD_FLOW             = "FLO"        # flow in L/h; not very sensitive
 SYR_CMD_VOLUME           = "AVO"        # volume of the current, single water consumption, in mL (always?); (imperial: fl.oz.?)
 SYR_CMD_VOLUME_LAST      = "LTV"        # volume of the last,    single water consumption, in Liter
+SYR_CMD_VOLUME_TOTAL     = "VOL"        # total cumulative volume of water consumed; in Liter (admin mode)
 SYR_CMD_ALARM            = "ALA"        # current alarm state; FF = no alarm, rest see table below
+SYR_CMD_ALARM_MEMORY     = "ALM"        # alarm history; requires admin mode; "Alarms:->A3 A3 A4 A4 A4 A4 A4 A4"
 SYR_CMD_UNITS            = "UNI"        # units; 0 = metric, 1 = imperial; I always get "mbar" and mL", even in imperial mode; FW bug?
 SYR_CMD_VERSION          = "VER"        # firmware version; e.g. "Safe-Tech V4.04"
 SYR_CMD_SERIAL           = "SRN"        # serial number; e.g. "123456789"
@@ -55,6 +57,7 @@ SYR_CMD_NEXT_MAINTENANCE = "SRV"        # next maintenance date; dd.mm.yyyy
 SYR_CMD_BATTERY          = "BAT"        #  battery voltage;   1/100V x.xx
 SYR_CMD_VOLTAGE          = "NET"        #  dc supply voltage; 1/100V x.xx
 SYR_CMD_RTC              = "RTC"        #  linux epoch time; 0-4294967295
+SYR_CMD_ADMIN            = "ADM"        #  service = "(1)", admin = "(2)f"; reset with "clr" instead of "set" (".../clr/ADM")
 
 SYR_ERROR_STRING    = "ERROR"      # error string to be returned if something went wrong; maybe "-1" would be better?
 
@@ -73,7 +76,18 @@ APP_CMD_PROFILE_SET = 4
 APP_COMMAND         = None         # wild mix
 
 
-# TODO: alarm codes for further anylysis:
+#############################################################################################################
+# NOTES
+
+# getALA  returns ongoing alarm
+# clrALA  clears ongoing alarm and opens the valve
+# setALA  sets ongoing alarm; probably used by water sensors
+
+# getALM  returns alarm history; requires admin mode; "Alarms:->A3 A3 A4 A4 A4 A4 A4 A4"
+# clrALM  clears the complete alarm history list
+
+
+# TODO: alarm codes for further anylysis
 #    FF   NO ALARM
 #    A1   ALARM END SWITCH
 #    A2   NO NETWORK
@@ -90,6 +104,13 @@ APP_COMMAND         = None         # wild mix
 #    AD   LOW BATTERY
 #    AE   WARNING VOLUME LEAKAGE
 #    AF   ALARM NO POWER SUPPLY
+
+
+
+
+
+
+
 
 
 #############################################################################################################
@@ -158,7 +179,7 @@ def GetDataRaw( command, timeout = 5 ):
 #############################################################################################################
 ## SetData
 #############################################################################################################
-def SetDataRaw( command, parameter, timeout = 5, useCLR = False):
+def SetDataRaw( command, parameter = None, timeout = 5, useCLR = False):
     """Write data to a Syr SafeTech
     
     command  : Command as string in lower or upper case letters. E.g. "PRF", "PN1", "ADM" ...
@@ -169,7 +190,12 @@ def SetDataRaw( command, parameter, timeout = 5, useCLR = False):
     Returns: the raw value of the requested command or "ERROR" if no response
     """
     command = command.upper()
-    strReq = "http://" + SYR_IPADDR + ":5333/safe-tec/" + ( "clr/" if useCLR else "set/" ) + command + "/" + parameter
+    if parameter is None:
+        parameter = ""
+    else:
+        parameter = "/" + parameter
+
+    strReq = "http://" + SYR_IPADDR + ":5333/safe-tec/" + ( "clr/" if useCLR else "set/" ) + command + parameter
 
     try:
 #        response = requests.get( "http://" + SYR_IPADDR + ":5333/safe-tec/set/" + command + "/" + parameter, timeout = timeout )
@@ -189,6 +215,21 @@ def SetDataRaw( command, parameter, timeout = 5, useCLR = False):
 
     # just in case; unused; will not be reached
     return SYR_ERROR_STRING
+
+
+#############################################################################################################
+## ClrDataRaw
+#############################################################################################################
+def ClrDataRaw( command, timeout = 5 ):
+    """Write ("clr") data to a Syr SafeTech
+    
+    command  : Command as string in lower or upper case letters. E.g. "PRF", "PN1", "ADM" ...
+    timeout  : seconds to wait for a response
+
+    Returns: the raw value of the requested command or "ERROR" if no response
+    """
+
+    return SetDataRaw( command, parameter=None, timeout=timeout, useCLR=True )
 
 
 #############################################################################################################
@@ -217,6 +258,10 @@ def GetAndPrintStatus():
     print( "  Profile " + str(profNum ) + " return time .... " + GetDataRaw( SYR_CMD_PROFILE_X_RTIME + str(profNum ) ) )
     print( "  Profile " + str(profNum ) + " buzzer ......... " + GetDataRaw( SYR_CMD_PROFILE_X_BUZZ + str(profNum ) ) )
     print( "  Profile " + str(profNum ) + " leakage warning. " + GetDataRaw( SYR_CMD_PROFILE_X_LEAKW + str(profNum ) ) )
+
+    # set admin mode to read some of the data (power supply voltage, alarm history)
+    print( "  Enter admin mode ......... " + str( SetDataRaw( SYR_CMD_ADMIN, "(1)" ) ) )
+
     print( "  Leakage temp disable ..... " + GetDataRaw( SYR_CMD_TMP) )
     print( "  Buzzer ................... " + GetDataRaw( SYR_CMD_BUZZER) )
     print( "  Conductivity limit ....... " + GetDataRaw( SYR_CMD_CONDUCT_LIMIT) )
@@ -224,11 +269,15 @@ def GetAndPrintStatus():
     print( "  Leakage warning .......... " + GetDataRaw( SYR_CMD_LEAKAGE_WARNING) )
     print( "  Next maintenance ......... " + GetDataRaw( SYR_CMD_NEXT_MAINTENANCE) )
     print( "  Battery voltage .......... " + GetDataRaw( SYR_CMD_BATTERY) )
-
-#    print( "  Power supply voltage ..... " + GetDataRaw( SYR_CMD_VOLTAGE) )
-    print( "  Power supply voltage ..... has issues; not supported yet" )
-
+    print( "  Power supply voltage ..... " + GetDataRaw( SYR_CMD_VOLTAGE) )
     print( "  RTC ...................... " + GetDataRaw( SYR_CMD_RTC) )
+    print( "  Ongoing alarm ............ " + GetDataRaw( SYR_CMD_ALARM) )
+    print( "  Alarm memory ............. " + GetDataRaw( SYR_CMD_ALARM_MEMORY) )
+    print( "  Last volume consumed ..... " + GetDataRaw( SYR_CMD_VOLUME_LAST) )
+    print( "  Total volume consumed .... " + GetDataRaw( SYR_CMD_VOLUME_TOTAL) )
+
+    # reset admin mode
+    print( "  Leave admin mode ......... " + str( ClrDataRaw( SYR_CMD_ADMIN ) ) )
 
 
 #############################################################################################################

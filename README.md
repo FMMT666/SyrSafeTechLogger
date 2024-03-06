@@ -254,12 +254,17 @@ to be continued ...
     - added profile parameter
     - reworked some internals
     - added set profile parameter
+    - added more status parameters; alarm, alarm history, total water cosume
+    - fixed power supply voltage readout
 
 
 ---
 ## TODO
+    - clear/reset alarm and open valve
+    - some WIFI things; scan, RSSI, ...
+    - clear total water consume
+    - SetDataRaw will have issues if "parameter" is not required; always has an "/" at the end then
     - iOS Shortcuts to change profiles
-    - reset/ack alarm
     - iOS Shortcuts to reset/ack an alarm
     - show all/selected profiles' data
     - modify profiles

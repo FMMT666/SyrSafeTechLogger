@@ -54,14 +54,33 @@ SYR_CMD_CONDUCT_LIMIT    = "CNL"        # conductivity limit; 0-5000uS/cm
 SYR_CMD_CONDUCT_FACTOR   = "CNF"        # conductivity factor; 5-50 representing 0.5-5.0
 SYR_CMD_LEAKAGE_WARNING  = "LWT"        # leakage warning notification; 80-99 in percent
 SYR_CMD_NEXT_MAINTENANCE = "SRV"        # next maintenance date; dd.mm.yyyy 
-SYR_CMD_BATTERY          = "BAT"        #  battery voltage;   1/100V x.xx
-SYR_CMD_VOLTAGE          = "NET"        #  dc supply voltage; 1/100V x.xx
-SYR_CMD_RTC              = "RTC"        #  linux epoch time; 0-4294967295
-SYR_CMD_ADMIN            = "ADM"        #  service = "(1)", admin = "(2)f"; reset with "clr" instead of "set" (".../clr/ADM")
+SYR_CMD_BATTERY          = "BAT"        # battery voltage;   1/100V x.xx
+SYR_CMD_VOLTAGE          = "NET"        # dc supply voltage; 1/100V x.xx
+SYR_CMD_RTC              = "RTC"        # linux epoch time; 0-4294967295
+SYR_CMD_ADMIN            = "ADM"        # service = "(1)", admin = "(2)f"; reset with "clr" instead of "set" (".../clr/ADM")
 
 SYR_ERROR_STRING    = "ERROR"      # error string to be returned if something went wrong; maybe "-1" would be better?
 
 SYR_UNITS           = [ " mbar", "mL" ]  # for text/data replacement; imperial yet unknown; my device always puts out " mbar"
+
+SYR_ALARM_CODES = {
+    "FF" : "NO ALARM",
+    "A1" : "ALARM END SWITCH",
+    "A2" : "NO NETWORK",
+    "A3" : "ALARM VOLUME LEAKAGE",
+    "A4" : "ALARM TIME LEAKAGE",
+    "A5" : "ALARM MAX FLOW LEAKAGE",
+    "A6" : "ALARM MICRO LEAKAGE",
+    "A7" : "ALARM EXT. SENSOR LEAKAGE",
+    "A8" : "ALARM TURBINE BLOCKED",
+    "A9" : "ALARM PRESSURE SENSOR ERROR",
+    "AA" : "ALARM TEMPERATURE SENSOR ERROR",
+    "AB" : "ALARM CONDUCTIVITY SENSOR ERROR",
+    "AC" : "ALARM TO HIGH CONDUCTIVITY",
+    "AD" : "LOW BATTERY",
+    "AE" : "WARNING VOLUME LEAKAGE",
+    "AF" : "ALARM NO POWER SUPPLY"
+}
 
 #############################################################################################################
 APP_NOFILE          = False        # by default, everything is written to a file
@@ -72,6 +91,7 @@ APP_CMD_HENLO       = 1            # typos and enums sock; the cool thing is tha
 APP_CMD_STATUS      = 2
 APP_CMD_PROFILE     = 3
 APP_CMD_PROFILE_SET = 4
+APP_CMD_CLEARALARM  = 5
 
 APP_COMMAND         = None         # wild mix
 
@@ -85,31 +105,6 @@ APP_COMMAND         = None         # wild mix
 
 # getALM  returns alarm history; requires admin mode; "Alarms:->A3 A3 A4 A4 A4 A4 A4 A4"
 # clrALM  clears the complete alarm history list
-
-
-# TODO: alarm codes for further anylysis
-#    FF   NO ALARM
-#    A1   ALARM END SWITCH
-#    A2   NO NETWORK
-#    A3   ALARM VOLUME LEAKAGE
-#    A4   ALARM TIME LEAKAGE
-#    A5   ALARM MAX FLOW LEAKAGE
-#    A6   ALARM MICRO LEAKAGE
-#    A7   ALARM EXT. SENSOR LEAKAGE
-#    A8   ALARM TURBINE BLOCKED
-#    A9   ALARM PRESSURE SENSOR ERROR
-#    AA   ALARM TEMPERATURE SENSOR ERROR
-#    AB   ALARM CONDUCTIVITY SENSOR ERROR
-#    AC   ALARM TO HIGH CONDUCTIVITY
-#    AD   LOW BATTERY
-#    AE   WARNING VOLUME LEAKAGE
-#    AF   ALARM NO POWER SUPPLY
-
-
-
-
-
-
 
 
 
@@ -132,6 +127,7 @@ def PrintUsage():
     print( "  --status      : print the current status and settings of the Syr, then quit" )
     print( "  --profile     : print name and number of active profile, then quit" )
     print( "  --profile=n   : select and activate profile number n" )
+    print( "  --clearalarm  : clear the ongoing alarm and open the valve" )
 
 
 
@@ -367,6 +363,11 @@ if __name__ == "__main__":
                 PrintUsage()
                 sys.exit( 0 )
         # ------------------------------
+        elif args == "--clearalarm":
+            # only accept the first command
+            if APP_COMMAND is None:
+                APP_COMMAND = APP_CMD_CLEARALARM
+        # ------------------------------
         else:
             if args == "--maxpolls" or args == "--delay" or args == "--ipaddr":
                 print( "ERROR: missing value for " + args )
@@ -393,6 +394,7 @@ if __name__ == "__main__":
         print( "ERROR: no response from Syr SafeTech Connect device" )
         sys.exit( 0 )
 
+    # -------------------------------------------------------------------------------------------------------
     if APP_COMMAND == APP_CMD_PROFILE or APP_COMMAND == APP_CMD_PROFILE_SET:
         print( "  Profile selected ......... " + (profNum:=GetDataRaw( SYR_CMD_PROFILE )) )
         print( "  Profile " + profNum + " name ........... " + GetDataRaw( SYR_CMD_PROFILE_X_NAME + profNum ) )
@@ -404,6 +406,7 @@ if __name__ == "__main__":
                 print( "  Setting profile " + str(profNumSet) + "......... " + str( SetDataRaw( SYR_CMD_PROFILE, str(profNumSet ) ) ) )
         sys.exit( 0 )
 
+    # -------------------------------------------------------------------------------------------------------
     if APP_COMMAND == APP_CMD_HENLO or APP_COMMAND == APP_CMD_STATUS:
         print( "Found device:" )
         print( "  Serial ................... " + syrSerial )
@@ -412,6 +415,21 @@ if __name__ == "__main__":
             GetAndPrintStatus()
         sys.exit( 0 )
 
+    # -------------------------------------------------------------------------------------------------------
+    if APP_COMMAND == APP_CMD_CLEARALARM:
+        print( "  Ongoing alarm ............ " + SYR_ALARM_CODES.get( alarmState:=GetDataRaw( SYR_CMD_ALARM ), "UNKNOWN STATE") )
+        if alarmState == "FF":
+            # instead of ignoring the command, it could be a good idea to open the valve
+#            sys.exit( 0 )
+            pass
+        print( "  Enter admin mode ......... " + str( SetDataRaw( SYR_CMD_ADMIN, "(1)" ) ) )
+        print( "  Clear alarm .............. " + str( ClrDataRaw( SYR_CMD_ALARM ) ) )
+        print( "  Leave admin mode ......... " + str( ClrDataRaw( SYR_CMD_ADMIN ) ) )
+        print( "  Checking alarm state...... " + SYR_ALARM_CODES.get( alarmState:=GetDataRaw( SYR_CMD_ALARM ), "UNKNOWN STATE") )
+        sys.exit( 0 )
+
+
+    # -------------------------------------------------------------------------------------------------------
     if APP_NOFILE is False:
         fout = open( time.strftime("%Y%m%d%H%M%S") + "_SyrSafeTech.log", "w+t" )
     else:

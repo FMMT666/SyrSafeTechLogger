@@ -86,6 +86,8 @@ Other command line options:
     --status      : print the current status and settings of the Syr, then quit
     --profile     : print name and number of active profile, then quit
     --profile=n   : select and activate profile number n
+    --clearalarm  : clear the ongoing alarm and open the valve
+
 
 
 For running in the background, on any server or minicomputer (Odroid, Raspberry Pi, etc.), e.g.:
@@ -256,11 +258,14 @@ to be continued ...
     - added set profile parameter
     - added more status parameters; alarm, alarm history, total water cosume
     - fixed power supply voltage readout
+    - added clear alarm and open valve
 
 
 ---
 ## TODO
-    - clear/reset alarm and open valve
+    - What happens when clrALA is executed when there's no alarm, but the valve is closed?
+      Will the valve then be opened?
+    - long alarm codes in status display
     - some WIFI things; scan, RSSI, ...
     - clear total water consume
     - SetDataRaw will have issues if "parameter" is not required; always has an "/" at the end then

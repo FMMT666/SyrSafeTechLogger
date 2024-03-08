@@ -15,6 +15,7 @@
 import sys
 import time
 import re
+import datetime
 import requests
 
 
@@ -246,14 +247,14 @@ def GetAndPrintStatus():
             print( SYR_ERROR_STRING, end = " " )
     print()
     print( "  Profile selected ......... " + (profNum:=GetDataRaw( SYR_CMD_PROFILE )) )
-    print( "  Profile " + str(profNum ) + " name ........... " + GetDataRaw( SYR_CMD_PROFILE_X_NAME + str(profNum ) ) )
-    print( "  Profile " + str(profNum ) + " volume level ... " + GetDataRaw( SYR_CMD_PROFILE_X_VOL + str(profNum ) ) )
-    print( "  Profile " + str(profNum ) + " time level ..... " + GetDataRaw( SYR_CMD_PROFILE_X_TIME + str(profNum ) ) )
-    print( "  Profile " + str(profNum ) + " flow level ..... " + GetDataRaw( SYR_CMD_PROFILE_X_FLOW + str(profNum ) ) )
-    print( "  Profile " + str(profNum ) + " microleakage ... " + GetDataRaw( SYR_CMD_PROFILE_X_MLEAK + str(profNum ) ) )
-    print( "  Profile " + str(profNum ) + " return time .... " + GetDataRaw( SYR_CMD_PROFILE_X_RTIME + str(profNum ) ) )
-    print( "  Profile " + str(profNum ) + " buzzer ......... " + GetDataRaw( SYR_CMD_PROFILE_X_BUZZ + str(profNum ) ) )
-    print( "  Profile " + str(profNum ) + " leakage warning. " + GetDataRaw( SYR_CMD_PROFILE_X_LEAKW + str(profNum ) ) )
+    print( "  Profile " + str( profNum ) + " name ........... " + GetDataRaw( SYR_CMD_PROFILE_X_NAME  + str( profNum ) ) )
+    print( "  Profile " + str( profNum ) + " volume level ... " + GetDataRaw( SYR_CMD_PROFILE_X_VOL   + str( profNum ) ) )
+    print( "  Profile " + str( profNum ) + " time level ..... " + GetDataRaw( SYR_CMD_PROFILE_X_TIME  + str( profNum ) ) )
+    print( "  Profile " + str( profNum ) + " flow level ..... " + GetDataRaw( SYR_CMD_PROFILE_X_FLOW  + str( profNum ) ) )
+    print( "  Profile " + str( profNum ) + " microleakage ... " + GetDataRaw( SYR_CMD_PROFILE_X_MLEAK + str( profNum ) ) )
+    print( "  Profile " + str( profNum ) + " return time .... " + GetDataRaw( SYR_CMD_PROFILE_X_RTIME + str( profNum ) ) )
+    print( "  Profile " + str( profNum ) + " buzzer ......... " + GetDataRaw( SYR_CMD_PROFILE_X_BUZZ  + str( profNum ) ) )
+    print( "  Profile " + str( profNum ) + " leakage warning. " + GetDataRaw( SYR_CMD_PROFILE_X_LEAKW + str( profNum ) ) )
 
     # set admin mode to read some of the data (power supply voltage, alarm history)
     print( "  Enter admin mode ......... " + str( SetDataRaw( SYR_CMD_ADMIN, "(1)" ) ) )
@@ -266,8 +267,13 @@ def GetAndPrintStatus():
     print( "  Next maintenance ......... " + GetDataRaw( SYR_CMD_NEXT_MAINTENANCE) )
     print( "  Battery voltage .......... " + GetDataRaw( SYR_CMD_BATTERY) )
     print( "  Power supply voltage ..... " + GetDataRaw( SYR_CMD_VOLTAGE) )
-    print( "  RTC ...................... " + GetDataRaw( SYR_CMD_RTC) )
-    print( "  Ongoing alarm ............ " + GetDataRaw( SYR_CMD_ALARM) )
+    print( "  RTC ...................... " + (strRTC:=GetDataRaw( SYR_CMD_RTC) ) )
+    try:
+        intRTC = int( strRTC )
+    except:
+        intRTC = -1
+    print( "  RTC converted............. " + ( str(datetime.datetime.fromtimestamp( intRTC )) if intRTC > 0 else "ERROR" ) )
+    print( "  Ongoing alarm ............ " + SYR_ALARM_CODES.get( GetDataRaw( SYR_CMD_ALARM ), "UNKNOWN STATE") )
     print( "  Alarm memory ............. " + GetDataRaw( SYR_CMD_ALARM_MEMORY) )
     print( "  Last volume consumed ..... " + GetDataRaw( SYR_CMD_VOLUME_LAST) )
     print( "  Total volume consumed .... " + GetDataRaw( SYR_CMD_VOLUME_TOTAL) )
@@ -425,7 +431,7 @@ if __name__ == "__main__":
         print( "  Enter admin mode ......... " + str( SetDataRaw( SYR_CMD_ADMIN, "(1)" ) ) )
         print( "  Clear alarm .............. " + str( ClrDataRaw( SYR_CMD_ALARM ) ) )
         print( "  Leave admin mode ......... " + str( ClrDataRaw( SYR_CMD_ADMIN ) ) )
-        print( "  Checking alarm state...... " + SYR_ALARM_CODES.get( alarmState:=GetDataRaw( SYR_CMD_ALARM ), "UNKNOWN STATE") )
+        print( "  Checking alarm state...... " + SYR_ALARM_CODES.get( GetDataRaw( SYR_CMD_ALARM ), "UNKNOWN STATE") )
         sys.exit( 0 )
 
 

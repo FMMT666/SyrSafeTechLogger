@@ -259,16 +259,16 @@ to be continued ...
     - added more status parameters; alarm, alarm history, total water cosume
     - fixed power supply voltage readout
     - added clear alarm and open valve
+    - added long alarm states in status report
+    - added converted (readable) time, date from RTC
 
 
 ---
 ## TODO
     - What happens when clrALA is executed when there's no alarm, but the valve is closed?
       Will the valve then be opened?
-    - long alarm codes in status display
     - some WIFI things; scan, RSSI, ...
     - clear total water consume
-    - SetDataRaw will have issues if "parameter" is not required; always has an "/" at the end then
     - iOS Shortcuts to change profiles
     - iOS Shortcuts to reset/ack an alarm
     - show all/selected profiles' data

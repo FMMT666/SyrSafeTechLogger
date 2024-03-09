@@ -37,6 +37,13 @@ I hadn't initially planned to implement device control as well. However, after s
 Displaying "an error occurred" or simply a rotating icon seem to be the only functionalities this horsehite app possesses. Even when it's supposedly "working", it takes five clicks (six if the app has logged you out, seven if an alarm has occurred that needs to be acknowledged), each with a 50% chance of a fatal deadlock, to reach the page where profiles can be selected. After selecting a new one, the rotating icon spins indefinitely, necessitating the closure of the app.
 
 ---
+The logger now ran for about two weeks, 24/7, with a 1s delay between each set of polls.  
+Everything (and the Syr) is working as expected. Occasionally, polling errors occur, but this
+only affects one measurement of each set.
+
+Nice.
+
+---
 (*1*) Actually it was a dripping water tap, about one drop every 2s and a leaking toilet flush.
 That didn't look like 7l at all, but good to know the Syr can detect it.
 
@@ -237,16 +244,6 @@ to be continued ...
 ---
 ## NEWS
 
-### CHANGES 2024/02/XX:
-    - initial q&d version
-    - added file output
-    - added sample output file
-    - added some command line options
-    - added alarm state query
-    - added the delay option
-    - removed units from output
-    - added the raw parameter to display the removed units
-
 ### CHANGES 2024/03/XX:
     - added IP address command line option
     - added henlo option to check if Syr is present
@@ -262,21 +259,30 @@ to be continued ...
     - added long alarm states in status report
     - added converted (readable) time, date from RTC
 
+### CHANGES 2024/02/XX:
+    - initial q&d version
+    - added file output
+    - added sample output file
+    - added some command line options
+    - added alarm state query
+    - added the delay option
+    - removed units from output
+    - added the raw parameter to display the removed units
 
 ---
 ## TODO
-    - What happens when clrALA is executed when there's no alarm, but the valve is closed?
-      Will the valve then be opened?
-    - some WIFI things; scan, RSSI, ...
+    - show all/selected profiles' data
     - clear total water consume
+    - some WIFI things; scan, RSSI, ...
+    - Octave data reader
+    - modify profiles
+    - What happens when clrALA is executed and there's no alarm, but the valve is closed?
+      Will it then be opened?
     - iOS Shortcuts to change profiles
     - iOS Shortcuts to reset/ack an alarm
-    - show all/selected profiles' data
-    - modify profiles
     - ClearDataRaw() function (which e.g. then calls SetDataRaw( ..., useCLR=True) )
     - DC voltage supply readout does not work; requires admin mode??
     - option to skip saving/displaying data if nothing happens
-    - Octave data reader
     - SyrSafeTechStat.py app, ncurses-like; with profile switching, etc.
     - (.)config file; Windoze: where to put this?
 

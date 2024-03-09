@@ -113,7 +113,7 @@ APP_COMMAND         = None         # wild mix
 ## PrintUsage
 #############################################################################################################
 def PrintUsage():
-    """Prints the usage, command line options to stdout.
+    """Prints the usage and command line options to stdout.
     """
     print( "Usage: SyrSafeTechLogger.py [options]" )
     print( "Options:" )
@@ -136,7 +136,7 @@ def PrintUsage():
 ## CheckIPv4
 #############################################################################################################
 def CheckIPv4( ipaddr ):
-    """Check if a string is a valid IPv4 address.
+    """Check if a string contains a valid IPv4 address.
 
     ipaddr: IPv4 address as string
 
@@ -156,7 +156,7 @@ def GetDataRaw( command, timeout = 5 ):
     command: Command as string in lower or upper case letters. E.g. "AVO", "CEL", ...
     timeout: seconds to wait for a response
 
-    Returns: the raw value of the requested command or "ERROR" if no response
+    Returns: the raw value of the requested command or "ERROR" if no response was received
     """
     command = command.upper()
     try:
@@ -177,14 +177,14 @@ def GetDataRaw( command, timeout = 5 ):
 ## SetData
 #############################################################################################################
 def SetDataRaw( command, parameter = None, timeout = 5, useCLR = False):
-    """Write data to a Syr SafeTech
+    """Write data to the Syr SafeTech
     
-    command  : Command as string in lower or upper case letters. E.g. "PRF", "PN1", "ADM" ...
-    parameter: The parameter to be set as a string. E.g. "0", "1", "(1)", "(2)f" 
+    command  : Command as string, in lower or upper case letters. E.g. "PRF", "PN1", "ADM" ...
+    parameter: The parameter to be set, as a string. E.g. "0", "1", "(1)", "(2)f" 
     timeout  : seconds to wait for a response
     useCLR   : if true, use "clr" instead of "set", e.g. for a ".../clr/ADM" command to reset admin rights.
 
-    Returns: the raw value of the requested command or "ERROR" if no response
+    Returns: the raw value of the requested command or "ERROR" if no response was received
     """
     command = command.upper()
     if parameter is None:
@@ -218,15 +218,93 @@ def SetDataRaw( command, parameter = None, timeout = 5, useCLR = False):
 ## ClrDataRaw
 #############################################################################################################
 def ClrDataRaw( command, timeout = 5 ):
-    """Write ("clr") data to a Syr SafeTech
+    """Write ("clr") data to the Syr SafeTech
     
     command  : Command as string in lower or upper case letters. E.g. "PRF", "PN1", "ADM" ...
     timeout  : seconds to wait for a response
 
-    Returns: the raw value of the requested command or "ERROR" if no response
+    Returns: the raw value of the requested command or "ERROR" if no response was received
     """
 
     return SetDataRaw( command, parameter=None, timeout=timeout, useCLR=True )
+
+
+#############################################################################################################
+## GetAndPrintProfiles
+#############################################################################################################
+# Actually, there should be something like a HAL here and for all the other things.
+# Directly reading the data and printing it in the same function is horseshite.
+# This thing's already a mess :)
+def GetAndPrintProfiles( quiet = False ):
+    """Read the number of available and configured profiles in the Syr.
+    Print them to stdout if 'quiet' is False.
+
+    quiet:  Do not print anything if set to True.
+
+    Returns: An array with numbers of available profiles (1..8) or an empty array if no profiles are available.
+    E.g. [ 1, 2, 3 ]
+    """
+
+
+    # TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK
+    # TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK
+    # TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK
+
+
+    print( "  Profiles available ....... " + GetDataRaw( SYR_CMD_PROFILENUMS ) )
+    print( "  Profile numbers .......... ", end = "" )
+    for i in range( 1, 9 ):
+        if ( ret := GetDataRaw( SYR_CMD_PROFILE_X_AVAIL + str(i) ) ) != SYR_ERROR_STRING:
+            if ret == "1":
+                print( str(i), end = " " )
+        else:
+            # not nice :-/
+            print( SYR_ERROR_STRING, end = " " )
+    print()
+
+
+#############################################################################################################
+## GetAndPrintProfileX
+#############################################################################################################
+# Actually, there should be something like a HAL here and for all the other things.
+# Directly reading the data and printing it in the same function is horseshite.
+# This thing's already a mess :)
+def GetAndPrintProfileX( profNum = None ):
+    """Read the Syr SafeTech's profile number 'profNum' and print the contents to stdout.
+
+    profNum: profile number as integer (1..8); None = active profile
+    """
+
+
+    # TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK
+    # TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK
+    # TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK
+
+
+    # move this to "GetAndPrintProfiles()" so that we can use this function for any of the 1..8 profiles
+
+    # print( "  Profiles available ....... " + GetDataRaw( SYR_CMD_PROFILENUMS ) )
+    # print( "  Profile numbers .......... ", end = "" )
+    # for i in range( 1, 9 ):
+    #     if ( ret := GetDataRaw( SYR_CMD_PROFILE_X_AVAIL + str(i) ) ) != SYR_ERROR_STRING:
+    #         if ret == "1":
+    #             print( str(i), end = " " )
+    #     else:
+    #         # not nice :-/
+    #         print( SYR_ERROR_STRING, end = " " )
+    # print()
+
+
+    print( "  Profile selected ......... " + (profNum:=GetDataRaw( SYR_CMD_PROFILE )) )
+    print( "  Profile " + str( profNum ) + " name ........... " + GetDataRaw( SYR_CMD_PROFILE_X_NAME  + str( profNum ) ) )
+    print( "  Profile " + str( profNum ) + " volume level ... " + GetDataRaw( SYR_CMD_PROFILE_X_VOL   + str( profNum ) ) )
+    print( "  Profile " + str( profNum ) + " time level ..... " + GetDataRaw( SYR_CMD_PROFILE_X_TIME  + str( profNum ) ) )
+    print( "  Profile " + str( profNum ) + " flow level ..... " + GetDataRaw( SYR_CMD_PROFILE_X_FLOW  + str( profNum ) ) )
+    print( "  Profile " + str( profNum ) + " microleakage ... " + GetDataRaw( SYR_CMD_PROFILE_X_MLEAK + str( profNum ) ) )
+    print( "  Profile " + str( profNum ) + " return time .... " + GetDataRaw( SYR_CMD_PROFILE_X_RTIME + str( profNum ) ) )
+    print( "  Profile " + str( profNum ) + " buzzer ......... " + GetDataRaw( SYR_CMD_PROFILE_X_BUZZ  + str( profNum ) ) )
+    print( "  Profile " + str( profNum ) + " leakage warning. " + GetDataRaw( SYR_CMD_PROFILE_X_LEAKW + str( profNum ) ) )
+
 
 
 #############################################################################################################
@@ -284,15 +362,8 @@ def GetAndPrintStatus():
 
 #############################################################################################################
 if __name__ == "__main__":
-    # Q&D dirty test only, so far.
-    # Absolutely unsure about the timing and stability.
-    # Will slamming protocols at the Syr even hinder it from working properly?
-    # Let's find out ...
 
-    # TESTING, TESTING, TESTING 123
-
-
-    maxpolls = -1 # -1 = infinite (default); can be overridden by command line option "--maxpolls=<n>"
+    maxpolls = -1  # -1 = infinite (default); can be overridden by command line option "--maxpolls=<n>"
 
     # -------------------------------------------------------------------------------------------------------
     # minimal command line options
@@ -467,7 +538,7 @@ if __name__ == "__main__":
             fout.flush() 
 
         if ( maxpolls > 0 ):
-            if ( maxpolls := maxpolls - 1 ) == 0:
+            if ( maxpolls := maxpolls - 1 ) <= 0:
                 break
 
         time.sleep( SYR_DELAY )

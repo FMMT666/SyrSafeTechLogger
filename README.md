@@ -268,9 +268,14 @@ to be continued ...
     - added the delay option
     - removed units from output
     - added the raw parameter to display the removed units
+    - errors are now printed to stderr
+    - added exit codes, some notes and stupid ideas
 
 ---
 ## TODO
+    - "quiet" parameter for command line control w/ othr SW
+    - printout and fetchting the data should really be separated
+      because of the (not originally intended) ctrl functionality
     - show all/selected profiles' data
     - clear total water consume
     - some WIFI things; scan, RSSI, ...

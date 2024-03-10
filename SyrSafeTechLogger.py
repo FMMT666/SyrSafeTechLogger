@@ -96,6 +96,69 @@ APP_CMD_CLEARALARM  = 5
 
 APP_COMMAND         = None         # wild mix
 
+APP_ERROR_NONE      = 0
+APP_ERROR_ARGS      = 1
+APP_ERROR_COMM      = 2
+
+
+#############################################################################################################
+# TESTING TESTING TESTING
+# Only drafting some ideas here
+
+SyrProfile_Cmd_dict = {
+    # also funny; one could easily iterate over this dict
+    # and use the same keys to store the data in another dict/class/...
+    "SYR_CMD_PROFILE_X_NAME" : "PN",
+    "SYR_CMD_PROFILE_X_VOL"  : "PV",
+    "SYR_CMD_PROFILE_X_TIME" : "PT",
+    "SYR_CMD_PROFILE_X_FLOW" : "PF",
+    "SYR_CMD_PROFILE_X_MLEAK": "PM",
+    "SYR_CMD_PROFILE_X_RTIME": "PR",
+    "SYR_CMD_PROFILE_X_BUZZ" : "PB",
+    "SYR_CMD_PROFILE_X_LEAKW": "PW"
+}
+
+SyrProfile_Values_dict = {
+    # with keys from above
+    "SYR_CMD_PROFILE_X_NAME" : "",
+    "SYR_CMD_PROFILE_X_VOL"  : 0,
+    "SYR_CMD_PROFILE_X_TIME" : 0,
+    "SYR_CMD_PROFILE_X_FLOW" : 0,
+    "SYR_CMD_PROFILE_X_MLEAK": 0,
+    "SYR_CMD_PROFILE_X_RTIME": 0,
+    "SYR_CMD_PROFILE_X_BUZZ" : 0,
+    "SYR_CMD_PROFILE_X_LEAKW": 0
+}
+
+SyrProfile_Prints_dict = {
+    # with keys from above
+    "SYR_CMD_PROFILE_X_NAME" : "  name ........... ",
+    "SYR_CMD_PROFILE_X_VOL"  : "  volume level ... ",
+    "SYR_CMD_PROFILE_X_TIME" : "  time level ..... ",
+    "SYR_CMD_PROFILE_X_FLOW" : "  flow level ..... ",
+    "SYR_CMD_PROFILE_X_MLEAK": "  microleakage ... ",
+    "SYR_CMD_PROFILE_X_RTIME": "  return time .... ",
+    "SYR_CMD_PROFILE_X_BUZZ" : "  buzzer ......... ",
+    "SYR_CMD_PROFILE_X_LEAKW": "  leakage warning. "
+}
+
+
+class SyrProfile_class:
+    # probably overkill bc this is a fire and forget script
+    def __init__(self) -> None:
+        self.name           = ""
+        self.volume         = 0
+        self.time           = 0
+        self.flow           = 0
+        self.microleakage   = 0
+        self.returntime     = 0
+        self.buzzer         = 0
+        self.leakagewarning = 0
+
+
+
+
+
 
 #############################################################################################################
 # NOTES
@@ -374,7 +437,7 @@ if __name__ == "__main__":
         # ------------------------------
         if args == "--help" or args == "-h" or args == "-?" or args == "/?":
             PrintUsage()
-            sys.exit( 0 )
+            sys.exit( APP_ERROR_NONE )
         # ------------------------------
         elif args == "--nofile":
             APP_NOFILE = True
@@ -399,9 +462,9 @@ if __name__ == "__main__":
             try:
                 maxpolls = int( args[11:] )
             except:
-                print( "ERROR: invalid value for --maxpolls" )
+                print( "ERROR: invalid value for --maxpolls", file=sys.stderr, flush=True )
                 PrintUsage()
-                sys.exit( 0 )
+                sys.exit( APP_ERROR_ARGS )
             if maxpolls < 1:
                 maxpolls = 1
         # ------------------------------
@@ -409,18 +472,18 @@ if __name__ == "__main__":
             try:
                 SYR_DELAY = abs( float( args[8:] ) )
             except:
-                print( "ERROR: invalid value for --delay" )
+                print( "ERROR: invalid value for --delay", file=sys.stderr, flush=True )
                 PrintUsage()
-                sys.exit( 0 )
+                sys.exit( APP_ERROR_ARGS )
             if SYR_DELAY < 0.1:
                 SYR_DELAY = 0
         # ------------------------------
         elif "--ipaddr=" in args:
             SYR_IPADDR = args[9:]
             if CheckIPv4( SYR_IPADDR ) is False:
-                print( "ERROR: invalid IP address" )
+                print( "ERROR: invalid IP address", file=sys.stderr, flush=True )
                 PrintUsage()
-                sys.exit( 0 )
+                sys.exit( APP_ERROR_ARGS )
         # ------------------------------
         elif args == "--profile":
             # only accept the first command
@@ -436,9 +499,9 @@ if __name__ == "__main__":
                 if profNumSet < 1 or profNumSet > 8:
                     raise ValueError
             except:
-                print( "ERROR: invalid value for --profile" )
+                print( "ERROR: invalid value for --profile", file=sys.stderr, flush=True )
                 PrintUsage()
-                sys.exit( 0 )
+                sys.exit( APP_ERROR_ARGS )
         # ------------------------------
         elif args == "--clearalarm":
             # only accept the first command
@@ -447,29 +510,29 @@ if __name__ == "__main__":
         # ------------------------------
         else:
             if args == "--maxpolls" or args == "--delay" or args == "--ipaddr":
-                print( "ERROR: missing value for " + args )
+                print( "ERROR: missing value for " + args, file=sys.stderr, flush=True)
             else:
-                print( "ERROR: unknown option: " + args )
+                print( "ERROR: unknown option: " + args, file=sys.stderr, flush=True )
             PrintUsage()
-            sys.exit( 0 )
+            sys.exit( APP_ERROR_ARGS )
 
     if APP_NOFILE and APP_NOSTDOUT:
-        print( "ERROR: --nofile and --nostdout together does not make sense at all" )
-        sys.exit( 0 )
+        print( "ERROR: --nofile and --nostdout together does not make sense at all", file=sys.stderr, flush=True )
+        sys.exit( APP_ERROR_ARGS )
 
     if SYR_IPADDR == "0.0.0.0":
-        print( "ERROR: missing IP address" )
+        print( "ERROR: missing IP address", file=sys.stderr, flush=True )
         PrintUsage()
-        sys.exit( 0 )
+        sys.exit( APP_ERROR_ARGS )
 
     # -------------------------------------------------------------------------------------------------------
     # check if the device is there and alive
     if ( syrVersion := GetDataRaw( SYR_CMD_VERSION ) ) == SYR_ERROR_STRING:
-        print( "ERROR: no response from Syr SafeTech Connect device" )
-        sys.exit( 0 )
+        print( "ERROR: no response from Syr SafeTech Connect device", file=sys.stderr, flush=True )
+        sys.exit( APP_ERROR_COMM )
     if ( syrSerial := GetDataRaw( SYR_CMD_SERIAL ) ) == SYR_ERROR_STRING:
-        print( "ERROR: no response from Syr SafeTech Connect device" )
-        sys.exit( 0 )
+        print( "ERROR: no response from Syr SafeTech Connect device", file=sys.stderr, flush=True )
+        sys.exit( APP_ERROR_COMM )
 
     # -------------------------------------------------------------------------------------------------------
     if APP_COMMAND == APP_CMD_PROFILE or APP_COMMAND == APP_CMD_PROFILE_SET:
@@ -481,7 +544,7 @@ if __name__ == "__main__":
                 print( "  Profile " + profNum + " ................ already active" )
             else:
                 print( "  Setting profile " + str(profNumSet) + "......... " + str( SetDataRaw( SYR_CMD_PROFILE, str(profNumSet ) ) ) )
-        sys.exit( 0 )
+        sys.exit( APP_ERROR_NONE )
 
     # -------------------------------------------------------------------------------------------------------
     if APP_COMMAND == APP_CMD_HENLO or APP_COMMAND == APP_CMD_STATUS:
@@ -490,20 +553,20 @@ if __name__ == "__main__":
         print( "  Version .................. " + syrVersion )
         if APP_COMMAND == APP_CMD_STATUS:
             GetAndPrintStatus()
-        sys.exit( 0 )
+        sys.exit( APP_ERROR_NONE )
 
     # -------------------------------------------------------------------------------------------------------
     if APP_COMMAND == APP_CMD_CLEARALARM:
         print( "  Ongoing alarm ............ " + SYR_ALARM_CODES.get( alarmState:=GetDataRaw( SYR_CMD_ALARM ), "UNKNOWN STATE") )
         if alarmState == "FF":
             # instead of ignoring the command, it could be a good idea to open the valve
-#            sys.exit( 0 )
+#            sys.exit( APP_ERROR_NONE )
             pass
         print( "  Enter admin mode ......... " + str( SetDataRaw( SYR_CMD_ADMIN, "(1)" ) ) )
         print( "  Clear alarm .............. " + str( ClrDataRaw( SYR_CMD_ALARM ) ) )
         print( "  Leave admin mode ......... " + str( ClrDataRaw( SYR_CMD_ADMIN ) ) )
         print( "  Checking alarm state...... " + SYR_ALARM_CODES.get( GetDataRaw( SYR_CMD_ALARM ), "UNKNOWN STATE") )
-        sys.exit( 0 )
+        sys.exit( APP_ERROR_NONE )
 
 
     # -------------------------------------------------------------------------------------------------------
@@ -547,3 +610,7 @@ if __name__ == "__main__":
 
     if APP_NOFILE is False:
         fout.close()
+
+    sys.exit( APP_ERROR_NONE )
+
+# END __main__

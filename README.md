@@ -209,15 +209,23 @@ The "--status" parameter outputs something comparable to this:
       Profile 3 return time .... 0
       Profile 3 buzzer ......... 1
       Profile 3 leakage warning. 0
+      Enter admin mode ......... {'setADM(1)': 'SERVICE'}
       Leakage temp disable ..... 0
       Buzzer ................... 1
       Conductivity limit ....... 0
       Conductivity factor ...... 20
       Leakage warning .......... 90
       Next maintenance ......... 25.01.2025
-      Battery voltage .......... 9,55
-      Power supply voltage ..... has issues; not supported yet
-      RTC ...................... 1709424581
+      Battery voltage .......... 9,50
+      Power supply voltage ..... 11,79
+      RTC ...................... 1710095656
+      RTC converted............. 2024-03-10 19:34:16
+      Ongoing alarm ............ NO ALARM
+      Alarm memory ............. Alarms:->A3 A3 A3 A3 A4 A4 A4 A4
+      Last volume consumed ..... 2
+      Total volume consumed .... Vol[L]2345
+      Leave admin mode ......... {'clrADM': 'ADMIN RESET'}
+
 
 
 ---
@@ -270,12 +278,13 @@ to be continued ...
     - added the raw parameter to display the removed units
     - errors are now printed to stderr
     - added exit codes, some notes and stupid ideas
+    - added alarm codes printout
 
 ---
 ## TODO
-    - "quiet" parameter for command line control w/ othr SW
     - printout and fetchting the data should really be separated
       because of the (not originally intended) ctrl functionality
+    - add "quiet" parameter for command line control w/ othr SW
     - show all/selected profiles' data
     - clear total water consume
     - some WIFI things; scan, RSSI, ...

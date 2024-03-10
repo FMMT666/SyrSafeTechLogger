@@ -93,6 +93,7 @@ APP_CMD_STATUS      = 2
 APP_CMD_PROFILE     = 3
 APP_CMD_PROFILE_SET = 4
 APP_CMD_CLEARALARM  = 5
+APP_CMD_ALARMCODES  = 6
 
 APP_COMMAND         = None         # wild mix
 
@@ -192,6 +193,7 @@ def PrintUsage():
     print( "  --profile     : print name and number of active profile, then quit" )
     print( "  --profile=n   : select and activate profile number n" )
     print( "  --clearalarm  : clear the ongoing alarm and open the valve" )
+    print( "  --alarmcodes  : print a list with alarm codes, then quit" )
 
 
 
@@ -229,8 +231,16 @@ def GetDataRaw( command, timeout = 5 ):
         return SYR_ERROR_STRING
 
     if response.status_code == 200:
+        # TODO: Apparently, this can really return None.
+        # Output in the nohup.out file, from a days long run:
+        #   Traceback (most recent call last):
+        #     File "SyrSafeTechLogger/./SyrSafeTechLogger.py", line 378, in <module>
+        #       dataLine = GetDataRaw( SYR_CMD_VALVE )       + "; " + \
+        #   TypeError: can only concatenate str (not "NoneType") to str
         data = response.json()
-        return data.get( 'get' + command )
+        # quick and dirty fix for the above problem:
+#        return data.get( 'get' + command )
+        return str( data.get( 'get' + command ) )
 
     # just in case; unused; will not be reached
     return SYR_ERROR_STRING
@@ -458,6 +468,11 @@ if __name__ == "__main__":
             if APP_COMMAND is None:
                 APP_COMMAND = APP_CMD_STATUS
         # ------------------------------
+        elif args == "--alarmcodes":
+            # only accept the first command
+            if APP_COMMAND is None:
+                APP_COMMAND = APP_CMD_ALARMCODES
+        # ------------------------------
         elif "--maxpolls=" in args:
             try:
                 maxpolls = int( args[11:] )
@@ -526,7 +541,15 @@ if __name__ == "__main__":
         sys.exit( APP_ERROR_ARGS )
 
     # -------------------------------------------------------------------------------------------------------
-    # check if the device is there and alive
+    # print a list with alarm codes
+    if APP_COMMAND == APP_CMD_ALARMCODES:
+        print( "Alarm codes:" )
+        for key, value in SYR_ALARM_CODES.items():
+            print( "  " + key + ": " + value )
+        sys.exit( APP_ERROR_NONE )
+
+    # -------------------------------------------------------------------------------------------------------
+    # always: check if the device is there and alive
     if ( syrVersion := GetDataRaw( SYR_CMD_VERSION ) ) == SYR_ERROR_STRING:
         print( "ERROR: no response from Syr SafeTech Connect device", file=sys.stderr, flush=True )
         sys.exit( APP_ERROR_COMM )
@@ -535,6 +558,7 @@ if __name__ == "__main__":
         sys.exit( APP_ERROR_COMM )
 
     # -------------------------------------------------------------------------------------------------------
+    # print or change the profile
     if APP_COMMAND == APP_CMD_PROFILE or APP_COMMAND == APP_CMD_PROFILE_SET:
         print( "  Profile selected ......... " + (profNum:=GetDataRaw( SYR_CMD_PROFILE )) )
         print( "  Profile " + profNum + " name ........... " + GetDataRaw( SYR_CMD_PROFILE_X_NAME + profNum ) )
@@ -547,6 +571,7 @@ if __name__ == "__main__":
         sys.exit( APP_ERROR_NONE )
 
     # -------------------------------------------------------------------------------------------------------
+    # a short "henlo" or a more detailed status
     if APP_COMMAND == APP_CMD_HENLO or APP_COMMAND == APP_CMD_STATUS:
         print( "Found device:" )
         print( "  Serial ................... " + syrSerial )
@@ -556,6 +581,7 @@ if __name__ == "__main__":
         sys.exit( APP_ERROR_NONE )
 
     # -------------------------------------------------------------------------------------------------------
+    # clear the ongoing alarm
     if APP_COMMAND == APP_CMD_CLEARALARM:
         print( "  Ongoing alarm ............ " + SYR_ALARM_CODES.get( alarmState:=GetDataRaw( SYR_CMD_ALARM ), "UNKNOWN STATE") )
         if alarmState == "FF":
@@ -570,6 +596,7 @@ if __name__ == "__main__":
 
 
     # -------------------------------------------------------------------------------------------------------
+    # preparations for the main "logger" loop
     if APP_NOFILE is False:
         fout = open( time.strftime("%Y%m%d%H%M%S") + "_SyrSafeTech.log", "w+t" )
     else:
@@ -577,6 +604,7 @@ if __name__ == "__main__":
 
 
     # -------------------------------------------------------------------------------------------------------
+    # the main "logger" loop
     while True:
         timeHuman   = time.asctime()
         timeMachine = time.strftime("%Y;%m;%d; %H;%M;%S")

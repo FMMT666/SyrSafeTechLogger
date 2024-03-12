@@ -44,6 +44,11 @@ only affects one measurement of each set.
 Nice.
 
 ---
+After a sudden change of conductivity, reported by the Syr HS app, which turned from a super hard red to a medium yellow
+water hardness, I added the option to log the conductivity too. Temperature will follow.  
+Could be interesting.
+
+---
 (*1*) Actually it was a dripping water tap, about one drop every 2s and a leaking toilet flush.
 That didn't look like 7l at all, but good to know the Syr can detect it.
 
@@ -94,6 +99,9 @@ Other command line options:
     --profile     : print name and number of active profile, then quit
     --profile=n   : select and activate profile number n
     --clearalarm  : clear the ongoing alarm and open the valve
+    --conductivity: measure and log conductivity too, off by default
+    --cond        : measure and log conductivity too, off by default; less typing, otherwise the same
+
 
 
 
@@ -133,6 +141,13 @@ stdout output (depending on your locali-s/z-ation):
     Mon Feb 26 00:00:18 2024; 10; 2000; 0; 0; 6; FF
     Mon Feb 26 00:00:20 2024; 10; 2000; 0; 0; 6; FF
 
+With "--conductivity" enabled:
+
+    Mon Feb 26 00:00:09 2024; 10; 2100; 0; 0; 6; FF; 690
+    Mon Feb 26 00:00:12 2024; 10; 2000; 0; 0; 6; FF; 700
+    Mon Feb 26 00:00:14 2024; 10; 2100; 0; 0; 6; FF; 690
+
+
 The logfile name consists of the current date and time, the logging process was started.  
 Sample file content, in CSV-style (currently only with raw values, directly from the Syr):
 
@@ -156,10 +171,11 @@ Pro tip: Go metric \o/
 
 So far, the columns after date and time, which should be obvious, mean:
 
-      VALVE | PRESSURE | FLOW | VOLUME  | LAST VOLUME | ALARM
-      state |   mbar   |  l/h |   mL    |      L      | state
-    --------+----------+------+---------+-------------+--------
-       10   |   5000   |  4   |  3200   |     12      |  FF
+                                                                  optional
+      VALVE | PRESSURE | FLOW | VOLUME  | LAST VOLUME | ALARM |  | COND. |
+      state |   mbar   |  l/h |   mL    |      L      | state |  | uS/cm |
+    --------+----------+------+---------+-------------+-------+  +-------+
+       10   |   5000   |  4   |  3200   |     12      |  FF   |  |  710  |
 
 The valve state's number corresponds to
 
@@ -266,6 +282,11 @@ to be continued ...
     - added clear alarm and open valve
     - added long alarm states in status report
     - added converted (readable) time, date from RTC
+    - errors are now printed to stderr
+    - added exit codes, some notes and stupid ideas
+    - added alarm codes printout
+    - added logging of conductivity
+
 
 ### CHANGES 2024/02/XX:
     - initial q&d version
@@ -276,12 +297,11 @@ to be continued ...
     - added the delay option
     - removed units from output
     - added the raw parameter to display the removed units
-    - errors are now printed to stderr
-    - added exit codes, some notes and stupid ideas
-    - added alarm codes printout
 
 ---
 ## TODO
+    - add logging temperature
+    - human readable valve states and error codes for stdout
     - printout and fetchting the data should really be separated
       because of the (not originally intended) ctrl functionality
     - add "quiet" parameter for command line control w/ othr SW

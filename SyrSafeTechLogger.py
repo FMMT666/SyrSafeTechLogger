@@ -30,6 +30,7 @@ SYR_CMD_VALVE            = "VLV"        # valve state; 10 = closed, 11 = closing
 SYR_CMD_TEMP             = "CEL"        # temperature in 0-1000 representing 0..100.0°C (if imperial maybe 0-100.0F; not sure)
 SYR_CMD_PRESSURE         = "BAR"        # pressure in mbar (if imperial maybe psi?; not sure)
 SYR_CMD_FLOW             = "FLO"        # flow in L/h; not very sensitive
+SYR_CMD_CONDUCTIVITY     = "CND"        # conductivity in uS/cm; 0-5000
 SYR_CMD_VOLUME           = "AVO"        # volume of the current, single water consumption, in mL (always?); (imperial: fl.oz.?)
 SYR_CMD_VOLUME_LAST      = "LTV"        # volume of the last,    single water consumption, in Liter
 SYR_CMD_VOLUME_TOTAL     = "VOL"        # total cumulative volume of water consumed; in Liter (admin mode)
@@ -87,6 +88,7 @@ SYR_ALARM_CODES = {
 APP_NOFILE          = False        # by default, everything is written to a file
 APP_NOSTDOUT        = False        # by default, everything is printed to stdout
 APP_RAW             = False        # by default, everything is printed in a human readable form
+APP_CONDUCTIVITY    = False        # by default, conductivity is not listed
 
 APP_CMD_HENLO       = 1            # typos and enums sock; the cool thing is that this copilot thingy :)
 APP_CMD_STATUS      = 2
@@ -194,6 +196,8 @@ def PrintUsage():
     print( "  --profile=n   : select and activate profile number n" )
     print( "  --clearalarm  : clear the ongoing alarm and open the valve" )
     print( "  --alarmcodes  : print a list with alarm codes, then quit" )
+    print( "  --conductivity: measure and log conductivity too, off by default" )
+    print( "  --cond        : measure and log conductivity too, off by default; less typing, otherwise the same" )
 
 
 
@@ -523,6 +527,9 @@ if __name__ == "__main__":
             if APP_COMMAND is None:
                 APP_COMMAND = APP_CMD_CLEARALARM
         # ------------------------------
+        elif args == "--conductivity" or args == "--cond":
+            APP_CONDUCTIVITY = True
+        # ------------------------------
         else:
             if args == "--maxpolls" or args == "--delay" or args == "--ipaddr":
                 print( "ERROR: missing value for " + args, file=sys.stderr, flush=True)
@@ -616,6 +623,9 @@ if __name__ == "__main__":
                    GetDataRaw( SYR_CMD_VOLUME )      + "; " + \
                    GetDataRaw( SYR_CMD_VOLUME_LAST ) + "; " + \
                    GetDataRaw( SYR_CMD_ALARM )
+
+        if APP_CONDUCTIVITY:
+            dataLine += "; " + GetDataRaw( SYR_CMD_CONDUCTIVITY )
 
         if APP_RAW is False:
             for i in range( len( SYR_UNITS ) ):

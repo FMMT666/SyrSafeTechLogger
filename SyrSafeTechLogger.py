@@ -89,6 +89,7 @@ APP_NOFILE          = False        # by default, everything is written to a file
 APP_NOSTDOUT        = False        # by default, everything is printed to stdout
 APP_RAW             = False        # by default, everything is printed in a human readable form
 APP_CONDUCTIVITY    = False        # by default, conductivity is not listed
+APP_TEMPERATURE     = False        # by default, temperature is not listed
 
 APP_CMD_HENLO       = 1            # typos and enums sock; the cool thing is that this copilot thingy :)
 APP_CMD_STATUS      = 2
@@ -198,6 +199,8 @@ def PrintUsage():
     print( "  --alarmcodes  : print a list with alarm codes, then quit" )
     print( "  --conductivity: measure and log conductivity too, off by default" )
     print( "  --cond        : measure and log conductivity too, off by default; less typing, otherwise the same" )
+    print( "  --temperature : measure and log temperature too, off by default" )
+    print( "  --temp        : measure and log temperature too, off by default; less typing, otherwise the same" )
 
 
 
@@ -530,6 +533,9 @@ if __name__ == "__main__":
         elif args == "--conductivity" or args == "--cond":
             APP_CONDUCTIVITY = True
         # ------------------------------
+        elif args == "--temperature" or args == "--temp":
+            APP_TEMPERATURE = True
+        # ------------------------------
         else:
             if args == "--maxpolls" or args == "--delay" or args == "--ipaddr":
                 print( "ERROR: missing value for " + args, file=sys.stderr, flush=True)
@@ -626,6 +632,9 @@ if __name__ == "__main__":
 
         if APP_CONDUCTIVITY:
             dataLine += "; " + GetDataRaw( SYR_CMD_CONDUCTIVITY )
+        
+        if APP_TEMPERATURE:
+            dataLine += "; " + GetDataRaw( SYR_CMD_TEMP )
 
         if APP_RAW is False:
             for i in range( len( SYR_UNITS ) ):

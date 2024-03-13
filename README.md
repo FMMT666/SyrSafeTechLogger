@@ -101,7 +101,8 @@ Other command line options:
     --clearalarm  : clear the ongoing alarm and open the valve
     --conductivity: measure and log conductivity too, off by default
     --cond        : measure and log conductivity too, off by default; less typing, otherwise the same
-
+    --temperature : measure and log temperature too, off by default
+    --temp        : measure and log temperature too, off by default; less typing, otherwise the same
 
 
 
@@ -141,11 +142,17 @@ stdout output (depending on your locali-s/z-ation):
     Mon Feb 26 00:00:18 2024; 10; 2000; 0; 0; 6; FF
     Mon Feb 26 00:00:20 2024; 10; 2000; 0; 0; 6; FF
 
-With "--conductivity" enabled:
+With "--conductivity" enabled, in uS/sm:
 
     Mon Feb 26 00:00:09 2024; 10; 2100; 0; 0; 6; FF; 690
     Mon Feb 26 00:00:12 2024; 10; 2000; 0; 0; 6; FF; 700
     Mon Feb 26 00:00:14 2024; 10; 2100; 0; 0; 6; FF; 690
+
+With "--conductivity" and "--temp" enabled, in °C*10:
+
+    Mon Feb 26 00:00:09 2024; 10; 2100; 0; 0; 6; FF; 690; 132
+    Mon Feb 26 00:00:12 2024; 10; 2000; 0; 0; 6; FF; 700; 128
+    Mon Feb 26 00:00:14 2024; 10; 2100; 0; 0; 6; FF; 690; 119
 
 
 The logfile name consists of the current date and time, the logging process was started.  
@@ -171,19 +178,19 @@ Pro tip: Go metric \o/
 
 So far, the columns after date and time, which should be obvious, mean:
 
-                                                                  optional
-      VALVE | PRESSURE | FLOW | VOLUME  | LAST VOLUME | ALARM |  | COND. |
-      state |   mbar   |  l/h |   mL    |      L      | state |  | uS/cm |
-    --------+----------+------+---------+-------------+-------+  +-------+
-       10   |   5000   |  4   |  3200   |     12      |  FF   |  |  710  |
+                                                                  optional  optional
+      VALVE | PRESSURE | FLOW | VOLUME  | LAST VOLUME | ALARM |  | COND. |  | TEMP  |
+      state |   mbar   |  l/h |   mL    |      L      | state |  | uS/cm |  | °C*10 |
+    --------+----------+------+---------+-------------+-------+  +-------+  +-------+
+       10   |   5000   |  4   |  3200   |     12      |  FF   |  |  710  |  |  129  |
 
 The valve state's number corresponds to
 
-       10   ->   valve is closed
-       11   ->   valve is currently closing
-       20   ->   valve is open
-       21   ->   valve is currently opening
-       30   ->   something not that optimal happened
+    10   ->   valve is closed
+    11   ->   valve is currently closing
+    20   ->   valve is open
+    21   ->   valve is currently opening
+    30   ->   something not that optimal happened
 
 The "VOLUME" is the absolut amount of water which is flowing since the water extraction started.
 It is reset when a new cycle starts.
@@ -192,22 +199,31 @@ The "LAST VOLUME" is the rounded amount of water which flowed during the previou
 
 "ALARM" states are as follows:
 
-    FF   NO ALARM
-    A1   ALARM END SWITCH
-    A2   NO NETWORK
-    A3   ALARM VOLUME LEAKAGE
-    A4   ALARM TIME LEAKAGE
-    A5   ALARM MAX FLOW LEAKAGE
-    A6   ALARM MICRO LEAKAGE
-    A7   ALARM EXT. SENSOR LEAKAGE
-    A8   ALARM TURBINE BLOCKED
-    A9   ALARM PRESSURE SENSOR ERROR
-    AA   ALARM TEMPERATURE SENSOR ERROR
-    AB   ALARM CONDUCTIVITY SENSOR ERROR
-    AC   ALARM TO HIGH CONDUCTIVITY
-    AD   LOW BATTERY
-    AE   WARNING VOLUME LEAKAGE
-    AF   ALARM NO POWER SUPPLY
+    FF   ->   NO ALARM
+    A1   ->   ALARM END SWITCH
+    A2   ->   NO NETWORK
+    A3   ->   ALARM VOLUME LEAKAGE
+    A4   ->   ALARM TIME LEAKAGE
+    A5   ->   ALARM MAX FLOW LEAKAGE
+    A6   ->   ALARM MICRO LEAKAGE
+    A7   ->   ALARM EXT. SENSOR LEAKAGE
+    A8   ->   ALARM TURBINE BLOCKED
+    A9   ->   ALARM PRESSURE SENSOR ERROR
+    AA   ->   ALARM TEMPERATURE SENSOR ERROR
+    AB   ->   ALARM CONDUCTIVITY SENSOR ERROR
+    AC   ->   ALARM TO HIGH CONDUCTIVITY
+    AD   ->   LOW BATTERY
+    AE   ->   WARNING VOLUME LEAKAGE
+    AF   ->   ALARM NO POWER SUPPLY
+
+"CONDUCTIVITY" is in uS/cm; ranging from 0 to 5000.  
+Conductivity is an indicator of salinization and mixing processes.  
+For Germany, the limit is 2790µS at 25°C, according to [TrinkwV (2013)][3] .
+
+The "TEMPERATURE" is shown in °C, multiplied by 10, e.g.:
+
+    129  ->   12.9°C
+
 
 The "--status" parameter outputs something comparable to this:
 
@@ -286,6 +302,7 @@ to be continued ...
     - added exit codes, some notes and stupid ideas
     - added alarm codes printout
     - added logging of conductivity
+    - added logging of temperature
 
 
 ### CHANGES 2024/02/XX:
@@ -301,6 +318,8 @@ to be continued ...
 ---
 ## TODO
     - add logging temperature
+    - add logging active profile (might be interesting too)
+    - add "--all" parameter for enabling all measurements at once
     - human readable valve states and error codes for stdout
     - printout and fetchting the data should really be separated
       because of the (not originally intended) ctrl functionality
@@ -329,3 +348,4 @@ FMMT666(ASkr)
 ---
 [1]: https://www.syr.de/en/Products/CB9D9A72-BC51-40CE-840E-73401981A519/SafeTech-Connect
 [2]: https://pypi.org/project/requests/
+[3]: https://www.recht.bund.de/bgbl/1/2023/159/regelungstext.pdf?__blob=publicationFile&v=2

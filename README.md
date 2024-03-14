@@ -99,11 +99,10 @@ Other command line options:
     --profile     : print name and number of active profile, then quit
     --profile=n   : select and activate profile number n
     --clearalarm  : clear the ongoing alarm and open the valve
-    --conductivity: measure and log conductivity too, off by default
-    --cond        : measure and log conductivity too, off by default; less typing, otherwise the same
-    --temperature : measure and log temperature too, off by default
-    --temp        : measure and log temperature too, off by default; less typing, otherwise the same
-
+    --logcond     : measure and log conductivity too, off by default
+    --logtemp     : measure and log temperature too, off by default
+    --logprofile  : log currently activated profile
+    --logall      : log all optional log options: conductivity, temperature, profile
 
 
 For running in the background, on any server or minicomputer (Odroid, Raspberry Pi, etc.), e.g.:
@@ -142,13 +141,19 @@ stdout output (depending on your locali-s/z-ation):
     Mon Feb 26 00:00:18 2024; 10; 2000; 0; 0; 6; FF
     Mon Feb 26 00:00:20 2024; 10; 2000; 0; 0; 6; FF
 
-With "--conductivity" enabled, in uS/sm:
+With "--logcond" enabled, in uS/sm:
 
     Mon Feb 26 00:00:09 2024; 10; 2100; 0; 0; 6; FF; 690
     Mon Feb 26 00:00:12 2024; 10; 2000; 0; 0; 6; FF; 700
     Mon Feb 26 00:00:14 2024; 10; 2100; 0; 0; 6; FF; 690
 
-With "--conductivity" and "--temp" enabled, in °C*10:
+With "--logcond" and "--logtemp" enabled, in °C*10:
+
+    Mon Feb 26 00:00:09 2024; 10; 2100; 0; 0; 6; FF; 690; 132
+    Mon Feb 26 00:00:12 2024; 10; 2000; 0; 0; 6; FF; 700; 128
+    Mon Feb 26 00:00:14 2024; 10; 2100; 0; 0; 6; FF; 690; 119
+
+With "--logcond", "--logtemp" and "--logprofile" enabled
 
     Mon Feb 26 00:00:09 2024; 10; 2100; 0; 0; 6; FF; 690; 132
     Mon Feb 26 00:00:12 2024; 10; 2000; 0; 0; 6; FF; 700; 128
@@ -178,11 +183,11 @@ Pro tip: Go metric \o/
 
 So far, the columns after date and time, which should be obvious, mean:
 
-                                                                  optional  optional
-      VALVE | PRESSURE | FLOW | VOLUME  | LAST VOLUME | ALARM |  | COND. |  | TEMP  |
-      state |   mbar   |  l/h |   mL    |      L      | state |  | uS/cm |  | °C*10 |
-    --------+----------+------+---------+-------------+-------+  +-------+  +-------+
-       10   |   5000   |  4   |  3200   |     12      |  FF   |  |  710  |  |  129  |
+                                                                  optional  optional   optional 
+      VALVE | PRESSURE | FLOW | VOLUME  | LAST VOLUME | ALARM |  | COND. |  | TEMP  |  |PROFILE|
+      state |   mbar   |  l/h |   mL    |      L      | state |  | uS/cm |  | °C*10 |  |  num  |
+    --------+----------+------+---------+-------------+-------+  +-------+  +-------+  +-------+
+       10   |   5000   |  4   |  3200   |     12      |  FF   |  |  710  |  |  129  |  |   2   |
 
 The valve state's number corresponds to
 
@@ -224,6 +229,8 @@ The "TEMPERATURE" is shown in °C, multiplied by 10, e.g.:
 
     129  ->   12.9°C
 
+Logging "PROFILE" might be useful to see whether some not intended changes happened.  
+Here, the number of the currently active profile is read out.
 
 The "--status" parameter outputs something comparable to this:
 
@@ -303,6 +310,9 @@ to be continued ...
     - added alarm codes printout
     - added logging of conductivity
     - added logging of temperature
+    - added logging of active profile
+    - shorter parameter names for optional logging
+    - added "logall" parameter for less typing
 
 
 ### CHANGES 2024/02/XX:
@@ -317,9 +327,6 @@ to be continued ...
 
 ---
 ## TODO
-    - add logging temperature
-    - add logging active profile (might be interesting too)
-    - add "--all" parameter for enabling all measurements at once
     - human readable valve states and error codes for stdout
     - printout and fetchting the data should really be separated
       because of the (not originally intended) ctrl functionality

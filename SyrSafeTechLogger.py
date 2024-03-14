@@ -22,7 +22,7 @@ import requests
 #############################################################################################################
 SYR_IPADDR = "0.0.0.0"             # IP address of Syr (set by command line option "--ipaddr=addr")
 SYR_UNITS  = "metric"              # unused yet; only metric so far (°C, bar, Liter)
-SYR_DELAY  = 1                     # delay between a set of requests in seconds
+SYR_DELAY  = 2                     # delay between a set of requests in seconds
 
 #############################################################################################################
 SYR_CMD_SHUTOFF          = "AB"         # valve state; 1 = opened, 2 = closed (according to the manual; but that's wrong, as it seems)
@@ -88,8 +88,9 @@ SYR_ALARM_CODES = {
 APP_NOFILE          = False        # by default, everything is written to a file
 APP_NOSTDOUT        = False        # by default, everything is printed to stdout
 APP_RAW             = False        # by default, everything is printed in a human readable form
-APP_CONDUCTIVITY    = False        # by default, conductivity is not listed
-APP_TEMPERATURE     = False        # by default, temperature is not listed
+APP_LOGCONDUCTIVITY = False        # by default, conductivity is not logged
+APP_LOGTEMPERATURE  = False        # by default, temperature is not logged
+APP_LOGPROFILE      = False        # by default, the currently activated profile is not logged
 
 APP_CMD_HENLO       = 1            # typos and enums sock; the cool thing is that this copilot thingy :)
 APP_CMD_STATUS      = 2
@@ -197,10 +198,10 @@ def PrintUsage():
     print( "  --profile=n   : select and activate profile number n" )
     print( "  --clearalarm  : clear the ongoing alarm and open the valve" )
     print( "  --alarmcodes  : print a list with alarm codes, then quit" )
-    print( "  --conductivity: measure and log conductivity too, off by default" )
-    print( "  --cond        : measure and log conductivity too, off by default; less typing, otherwise the same" )
-    print( "  --temperature : measure and log temperature too, off by default" )
-    print( "  --temp        : measure and log temperature too, off by default; less typing, otherwise the same" )
+    print( "  --logcond     : measure and log conductivity too, off by default" )
+    print( "  --logtemp     : measure and log temperature too, off by default" )
+    print( "  --logprofile  : log currently activyted profile" )
+    print( "  --logall      : log all optional log options: conductivity, temperature, profile" )
 
 
 
@@ -233,6 +234,8 @@ def GetDataRaw( command, timeout = 5 ):
     command = command.upper()
     try:
         response = requests.get( "http://" + SYR_IPADDR + ":5333/safe-tec/get/" + command, timeout = timeout )
+        # DEBUG DOTS
+#        print(".", end="", flush=True)
     except:
         # one for all
         return SYR_ERROR_STRING
@@ -530,11 +533,19 @@ if __name__ == "__main__":
             if APP_COMMAND is None:
                 APP_COMMAND = APP_CMD_CLEARALARM
         # ------------------------------
-        elif args == "--conductivity" or args == "--cond":
-            APP_CONDUCTIVITY = True
+        elif args == "--logcond":
+            APP_LOGCONDUCTIVITY = True
         # ------------------------------
-        elif args == "--temperature" or args == "--temp":
-            APP_TEMPERATURE = True
+        elif args == "--logtemp":
+            APP_LOGTEMPERATURE = True
+        # ------------------------------
+        elif args == "--logprofile":
+            APP_LOGPROFILE = True
+        # ------------------------------
+        elif args == "--logall":
+            APP_LOGCONDUCTIVITY = True
+            APP_LOGTEMPERATURE  = True
+            APP_LOGPROFILE      = True
         # ------------------------------
         else:
             if args == "--maxpolls" or args == "--delay" or args == "--ipaddr":
@@ -630,15 +641,20 @@ if __name__ == "__main__":
                    GetDataRaw( SYR_CMD_VOLUME_LAST ) + "; " + \
                    GetDataRaw( SYR_CMD_ALARM )
 
-        if APP_CONDUCTIVITY:
+        if APP_LOGCONDUCTIVITY:
             dataLine += "; " + GetDataRaw( SYR_CMD_CONDUCTIVITY )
         
-        if APP_TEMPERATURE:
+        if APP_LOGTEMPERATURE:
             dataLine += "; " + GetDataRaw( SYR_CMD_TEMP )
+        
+        if APP_LOGPROFILE:
+            dataLine += "; " + GetDataRaw( SYR_CMD_PROFILE )
+
 
         if APP_RAW is False:
             for i in range( len( SYR_UNITS ) ):
                 dataLine = dataLine.replace( SYR_UNITS[i], "" )
+
 
         if APP_NOSTDOUT is False:
             print( timeHuman + "; " + dataLine )
@@ -646,6 +662,7 @@ if __name__ == "__main__":
         if APP_NOFILE is False:
             fout.write( timeMachine + "; " + dataLine + "\n" )
             fout.flush() 
+
 
         if ( maxpolls > 0 ):
             if ( maxpolls := maxpolls - 1 ) <= 0:

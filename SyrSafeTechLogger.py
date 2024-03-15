@@ -84,6 +84,15 @@ SYR_ALARM_CODES = {
     "AF" : "ALARM NO POWER SUPPLY"
 }
 
+SYR_VALVE_STATES = {
+    "10" : "CLOSED",
+    "11" : "CLOSING",
+    "20" : "OPEN",
+    "21" : "OPENING",
+    "30" : "UNDEFINED"
+}
+
+
 #############################################################################################################
 APP_NOFILE          = False        # by default, everything is written to a file
 APP_NOSTDOUT        = False        # by default, everything is printed to stdout
@@ -633,9 +642,12 @@ if __name__ == "__main__":
         timeHuman   = time.asctime()
         timeMachine = time.strftime("%Y;%m;%d; %H;%M;%S")
 
+        # get the valve state as in and in human readable form for stdout
+        valveStateCode = GetDataRaw( SYR_CMD_VALVE )
+        valveStateStr  = SYR_VALVE_STATES.get( valveStateCode, "UNKNOWN STATE" )
+
         # log everything in its raw form for now
-        dataLine = GetDataRaw( SYR_CMD_VALVE )       + "; " + \
-                   GetDataRaw( SYR_CMD_PRESSURE )    + "; " + \
+        dataLine = GetDataRaw( SYR_CMD_PRESSURE )    + "; " + \
                    GetDataRaw( SYR_CMD_FLOW )        + "; " + \
                    GetDataRaw( SYR_CMD_VOLUME )      + "; " + \
                    GetDataRaw( SYR_CMD_VOLUME_LAST ) + "; " + \
@@ -657,10 +669,10 @@ if __name__ == "__main__":
 
 
         if APP_NOSTDOUT is False:
-            print( timeHuman + "; " + dataLine )
+            print( timeHuman + "; " + valveStateStr + "; " + dataLine )
 
         if APP_NOFILE is False:
-            fout.write( timeMachine + "; " + dataLine + "\n" )
+            fout.write( timeMachine + "; " + valveStateCode + "; " + dataLine + "\n" )
             fout.flush() 
 
 

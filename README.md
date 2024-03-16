@@ -134,30 +134,30 @@ That's it for now.
 ## Sample Output
 stdout output (depending on your locali-s/z-ation):
 
-    Mon Feb 26 00:00:09 2024; CLOSED; 2100; 0; 0; 6; FF
-    Mon Feb 26 00:00:12 2024; CLOSED; 2000; 0; 0; 6; FF
-    Mon Feb 26 00:00:14 2024; CLOSED; 2100; 0; 0; 6; FF
-    Mon Feb 26 00:00:16 2024; CLOSED; 2000; 0; 0; 6; FF
-    Mon Feb 26 00:00:18 2024; CLOSED; 2000; 0; 0; 6; FF
-    Mon Feb 26 00:00:20 2024; CLOSED; 2000; 0; 0; 6; FF
+    Mon Feb 26 00:00:09 2024; CLOSED; 2100; 0; 0; 6; NO ALARM
+    Mon Feb 26 00:00:12 2024; CLOSED; 2000; 0; 0; 6; NO ALARM
+    Mon Feb 26 00:00:14 2024; CLOSED; 2100; 0; 0; 6; NO ALARM
+    Mon Feb 26 00:00:16 2024; CLOSED; 2000; 0; 0; 6; NO ALARM
+    Mon Feb 26 00:00:18 2024; CLOSED; 2000; 0; 0; 6; NO ALARM
+    Mon Feb 26 00:00:20 2024; CLOSED; 2000; 0; 0; 6; NO ALARM
 
 With "--logcond" enabled, in uS/sm:
 
-    Mon Feb 26 00:00:09 2024; CLOSED; 2100; 0; 0; 6; FF; 690
-    Mon Feb 26 00:00:12 2024; CLOSED; 2000; 0; 0; 6; FF; 700
-    Mon Feb 26 00:00:14 2024; CLOSED; 2100; 0; 0; 6; FF; 690
+    Mon Feb 26 00:00:09 2024; CLOSED; 2100; 0; 0; 6; NO ALARM; 690
+    Mon Feb 26 00:00:12 2024; CLOSED; 2000; 0; 0; 6; NO ALARM; 700
+    Mon Feb 26 00:00:14 2024; CLOSED; 2100; 0; 0; 6; NO ALARM; 690
 
 With "--logcond" and "--logtemp" enabled, in °C*10:
 
-    Mon Feb 26 00:00:09 2024; CLOSED; 2100; 0; 0; 6; FF; 690; 132
-    Mon Feb 26 00:00:12 2024; CLOSED; 2000; 0; 0; 6; FF; 700; 128
-    Mon Feb 26 00:00:14 2024; CLOSED; 2100; 0; 0; 6; FF; 690; 119
+    Mon Feb 26 00:00:09 2024; CLOSED; 2100; 0; 0; 6; NO ALARM; 690; 132
+    Mon Feb 26 00:00:12 2024; CLOSED; 2000; 0; 0; 6; NO ALARM; 700; 128
+    Mon Feb 26 00:00:14 2024; CLOSED; 2100; 0; 0; 6; NO ALARM; 690; 119
 
-With "--logcond", "--logtemp" and "--logprofile" enabled
+With "--logcond", "--logtemp" and "--logprofile" enabled (or "--logall" as a shorter form)
 
-    Mon Feb 26 00:00:09 2024; CLOSED; 2100; 0; 0; 6; FF; 690; 132
-    Mon Feb 26 00:00:12 2024; CLOSED; 2000; 0; 0; 6; FF; 700; 128
-    Mon Feb 26 00:00:14 2024; CLOSED; 2100; 0; 0; 6; FF; 690; 119
+    Mon Feb 26 00:00:09 2024; CLOSED; 2100; 0; 0; 6; NO ALARM; 690; 132; 2
+    Mon Feb 26 00:00:12 2024; CLOSED; 2000; 0; 0; 6; NO ALARM; 700; 128; 2
+    Mon Feb 26 00:00:14 2024; CLOSED; 2100; 0; 0; 6; NO ALARM; 690; 119; 2
 
 
 The logfile name consists of the current date and time, the logging process was started.  
@@ -314,6 +314,7 @@ to be continued ...
     - shorter parameter names for optional logging
     - added "logall" parameter for less typing
     - added human readable valve states for stdout
+    - human readable error codes for stdout
 
 
 ### CHANGES 2024/02/XX:
@@ -328,7 +329,6 @@ to be continued ...
 
 ---
 ## TODO
-    - human readable error codes for stdout
     - printout and fetchting the data should really be separated
       because of the (not originally intended) ctrl functionality
     - add "quiet" parameter for command line control w/ othr SW

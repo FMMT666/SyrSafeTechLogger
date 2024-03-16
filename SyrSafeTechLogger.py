@@ -11,7 +11,6 @@
 #
 
 
-
 import sys
 import time
 import re
@@ -642,7 +641,7 @@ if __name__ == "__main__":
         timeHuman   = time.asctime()
         timeMachine = time.strftime("%Y;%m;%d; %H;%M;%S")
 
-        # get the valve state as in and in human readable form for stdout
+        # get the valve state as a number and in human readable form for stdout
         valveStateCode = GetDataRaw( SYR_CMD_VALVE )
         valveStateStr  = SYR_VALVE_STATES.get( valveStateCode, "UNKNOWN STATE" )
 
@@ -650,17 +649,20 @@ if __name__ == "__main__":
         dataLine = GetDataRaw( SYR_CMD_PRESSURE )    + "; " + \
                    GetDataRaw( SYR_CMD_FLOW )        + "; " + \
                    GetDataRaw( SYR_CMD_VOLUME )      + "; " + \
-                   GetDataRaw( SYR_CMD_VOLUME_LAST ) + "; " + \
-                   GetDataRaw( SYR_CMD_ALARM )
+                   GetDataRaw( SYR_CMD_VOLUME_LAST )
+        
+        # get thealarm state as a number and in human readable form for stdout
+        errorCode = GetDataRaw( SYR_CMD_ALARM )
+        errorStr  = SYR_ALARM_CODES.get( errorCode, "UNKNOWN ERROR" )
 
         if APP_LOGCONDUCTIVITY:
-            dataLine += "; " + GetDataRaw( SYR_CMD_CONDUCTIVITY )
+            dataLine2 =  "; " + GetDataRaw( SYR_CMD_CONDUCTIVITY )
         
         if APP_LOGTEMPERATURE:
-            dataLine += "; " + GetDataRaw( SYR_CMD_TEMP )
+            dataLine2 += "; " + GetDataRaw( SYR_CMD_TEMP )
         
         if APP_LOGPROFILE:
-            dataLine += "; " + GetDataRaw( SYR_CMD_PROFILE )
+            dataLine2 += "; " + GetDataRaw( SYR_CMD_PROFILE )
 
 
         if APP_RAW is False:
@@ -669,10 +671,10 @@ if __name__ == "__main__":
 
 
         if APP_NOSTDOUT is False:
-            print( timeHuman + "; " + valveStateStr + "; " + dataLine )
+            print( timeHuman + "; " + valveStateStr + "; " + dataLine + "; " + errorStr + dataLine2 )
 
         if APP_NOFILE is False:
-            fout.write( timeMachine + "; " + valveStateCode + "; " + dataLine + "\n" )
+            fout.write( timeMachine + "; " + valveStateCode + "; " + dataLine + "; " + errorCode + dataLine2 + "\n" )
             fout.flush() 
 
 

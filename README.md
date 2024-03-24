@@ -8,6 +8,8 @@ Reads the most important data from a [Syr SafeTech Connect][1] leakage protectio
 Can also be used to control some functions of the device.  
 Maybe even more in the future.
 
+Also lookout for some [handy Apple Shortcuts for the Syr SafeTech][4], I put together.  
+
 ![](SyrSafeTech.jpg)
 
 ---
@@ -357,3 +359,4 @@ FMMT666(ASkr)
 [1]: https://www.syr.de/en/Products/CB9D9A72-BC51-40CE-840E-73401981A519/SafeTech-Connect
 [2]: https://pypi.org/project/requests/
 [3]: https://www.recht.bund.de/bgbl/1/2023/159/regelungstext.pdf?__blob=publicationFile&v=2
+[4]: https://github.com/FMMT666/SyrSafeTech_AppleShortcuts

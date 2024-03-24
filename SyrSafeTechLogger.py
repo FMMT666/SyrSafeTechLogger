@@ -386,6 +386,7 @@ def GetAndPrintProfileX( profNum = None ):
     # print()
 
 
+    # TODO: This will most likely fail if profNum is "ERROR" or None
     print( "  Profile selected ......... " + (profNum:=GetDataRaw( SYR_CMD_PROFILE )) )
     print( "  Profile " + str( profNum ) + " name ........... " + GetDataRaw( SYR_CMD_PROFILE_X_NAME  + str( profNum ) ) )
     print( "  Profile " + str( profNum ) + " volume level ... " + GetDataRaw( SYR_CMD_PROFILE_X_VOL   + str( profNum ) ) )

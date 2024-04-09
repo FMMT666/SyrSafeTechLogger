@@ -7,7 +7,7 @@
 #
 # https://github.com/FMMT666/SyrSafeTechLogger
 #
-# FMMT666(ASkr) 02/2024, 03/2024
+# FMMT666(ASkr) 02/2024, 03/2024, 04/2024
 #
 
 
@@ -94,25 +94,26 @@ SYR_VALVE_STATES = {
 
 
 #############################################################################################################
-APP_NOFILE          = False        # by default, everything is written to a file
-APP_NOSTDOUT        = False        # by default, everything is printed to stdout
-APP_RAW             = False        # by default, everything is printed in a human readable form
-APP_LOGCONDUCTIVITY = False        # by default, conductivity is not logged
-APP_LOGTEMPERATURE  = False        # by default, temperature is not logged
-APP_LOGPROFILE      = False        # by default, the currently activated profile is not logged
+APP_NOFILE           = False        # by default, everything is written to a file
+APP_NOSTDOUT         = False        # by default, everything is printed to stdout
+APP_RAW              = False        # by default, everything is printed in a human readable form
+APP_LOGCONDUCTIVITY  = False        # by default, conductivity is not logged
+APP_LOGTEMPERATURE   = False        # by default, temperature is not logged
+APP_LOGPROFILE       = False        # by default, the currently activated profile is not logged
 
-APP_CMD_HENLO       = 1            # typos and enums sock; the cool thing is that this copilot thingy :)
-APP_CMD_STATUS      = 2
-APP_CMD_PROFILE     = 3
-APP_CMD_PROFILE_SET = 4
-APP_CMD_CLEARALARM  = 5
-APP_CMD_ALARMCODES  = 6
+APP_CMD_HENLO        = 1            # typos and enums sock
+APP_CMD_STATUS       = 2
+APP_CMD_PROFILE      = 3
+APP_CMD_PROFILE_SET  = 4
+APP_CMD_CLEARALARM   = 5
+APP_CMD_ALARMCODES   = 6
+APP_CMD_SHOWPROFILES = 7
 
-APP_COMMAND         = None         # wild mix
+APP_COMMAND          = None         # wild mix
 
-APP_ERROR_NONE      = 0
-APP_ERROR_ARGS      = 1
-APP_ERROR_COMM      = 2
+APP_ERROR_NONE       = 0
+APP_ERROR_ARGS       = 1
+APP_ERROR_COMM       = 2
 
 
 #############################################################################################################
@@ -194,23 +195,25 @@ def PrintUsage():
     """
     print( "Usage: SyrSafeTechLogger.py [options]" )
     print( "Options:" )
-    print( "  --help        : print this help" )
-    print( "  --ipaddr=addr : set the IP address of the Syr SafeTech Connect device" )
-    print( "  --henlo       : test presence of the device, print serial number, SW version and then quit" )
-    print( "  --nofile      : do not write to a file" )
-    print( "  --nostdout    : do not print to stdout (useful when used with nohup)" )
-    print( "  --maxpolls=n  : stop after n polls" )
-    print( "  --delay=n     : delay between set of polls in seconds; floating point allowed, e.g. --delay=1.5" )
-    print( "  --raw         : print raw data; units 'mbar', 'mL', etc. are not removed" )
-    print( "  --status      : print the current status and settings of the Syr, then quit" )
-    print( "  --profile     : print name and number of active profile, then quit" )
-    print( "  --profile=n   : select and activate profile number n" )
-    print( "  --clearalarm  : clear the ongoing alarm and open the valve" )
-    print( "  --alarmcodes  : print a list with alarm codes, then quit" )
-    print( "  --logcond     : measure and log conductivity too, off by default" )
-    print( "  --logtemp     : measure and log temperature too, off by default" )
-    print( "  --logprofile  : log currently activyted profile" )
-    print( "  --logall      : log all optional log options: conductivity, temperature, profile" )
+    print( "  --help          : print this help" )
+    print( "  --ipaddr=addr   : set the IP address of the Syr SafeTech Connect device" )
+    print( "  --henlo         : test presence of the device, print serial number, SW version and then quit" )
+    print( "  --nofile        : do not write to a file" )
+    print( "  --nostdout      : do not print to stdout (useful when used with nohup)" )
+    print( "  --maxpolls=n    : stop after n polls" )
+    print( "  --delay=n       : delay between set of polls in seconds; floating point allowed, e.g. --delay=1.5" )
+    print( "  --raw           : print raw data; units 'mbar', 'mL', etc. are not removed" )
+    print( "  --status        : print the current status and settings of the Syr, then quit" )
+    print( "  --profile       : print name and number of active profile, then quit" )
+    print( "  --profile=n     : select and activate profile number n" )
+    print( "  --showprofiles  : print all available profiles, then quit")
+    print( "  --showprofile=n : print the settings of profile number n, then quit")
+    print( "  --clearalarm    : clear the ongoing alarm and open the valve" )
+    print( "  --alarmcodes    : print a list with alarm codes, then quit" )
+    print( "  --logcond       : measure and log conductivity too, off by default" )
+    print( "  --logtemp       : measure and log temperature too, off by default" )
+    print( "  --logprofile    : log currently activated profile" )
+    print( "  --logall        : log all optional log options: conductivity, temperature, profile" )
 
 
 
@@ -337,22 +340,21 @@ def GetAndPrintProfiles( quiet = False ):
     E.g. [ 1, 2, 3 ]
     """
 
-
-    # TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK
-    # TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK
-    # TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK
-
-
+    lstProfiles = []
     print( "  Profiles available ....... " + GetDataRaw( SYR_CMD_PROFILENUMS ) )
     print( "  Profile numbers .......... ", end = "" )
     for i in range( 1, 9 ):
         if ( ret := GetDataRaw( SYR_CMD_PROFILE_X_AVAIL + str(i) ) ) != SYR_ERROR_STRING:
             if ret == "1":
                 print( str(i), end = " " )
+                lstProfiles.append( i )
         else:
             # not nice :-/
             print( SYR_ERROR_STRING, end = " " )
     print()
+
+    return lstProfiles
+
 
 
 #############################################################################################################
@@ -367,28 +369,11 @@ def GetAndPrintProfileX( profNum = None ):
     profNum: profile number as integer (1..8); None = active profile
     """
 
+    # TODO: This will all fail if profNum is "ERROR" or None
+    if profNum is None:
+        profNum = GetDataRaw( SYR_CMD_PROFILE )
+        print( "  Profile selected ......... " + (profNum:=GetDataRaw( SYR_CMD_PROFILE )) )
 
-    # TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK
-    # TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK
-    # TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK TODO IN WORK
-
-
-    # move this to "GetAndPrintProfiles()" so that we can use this function for any of the 1..8 profiles
-
-    # print( "  Profiles available ....... " + GetDataRaw( SYR_CMD_PROFILENUMS ) )
-    # print( "  Profile numbers .......... ", end = "" )
-    # for i in range( 1, 9 ):
-    #     if ( ret := GetDataRaw( SYR_CMD_PROFILE_X_AVAIL + str(i) ) ) != SYR_ERROR_STRING:
-    #         if ret == "1":
-    #             print( str(i), end = " " )
-    #     else:
-    #         # not nice :-/
-    #         print( SYR_ERROR_STRING, end = " " )
-    # print()
-
-
-    # TODO: This will most likely fail if profNum is "ERROR" or None
-    print( "  Profile selected ......... " + (profNum:=GetDataRaw( SYR_CMD_PROFILE )) )
     print( "  Profile " + str( profNum ) + " name ........... " + GetDataRaw( SYR_CMD_PROFILE_X_NAME  + str( profNum ) ) )
     print( "  Profile " + str( profNum ) + " volume level ... " + GetDataRaw( SYR_CMD_PROFILE_X_VOL   + str( profNum ) ) )
     print( "  Profile " + str( profNum ) + " time level ..... " + GetDataRaw( SYR_CMD_PROFILE_X_TIME  + str( profNum ) ) )
@@ -407,25 +392,11 @@ def GetAndPrintStatus():
     """Read (almost) all settings the Syr SafeTech and print them to stdout.
     """
 
-    print( "  Profiles available ....... " + GetDataRaw( SYR_CMD_PROFILENUMS ) )
-    print( "  Profile numbers .......... ", end = "" )
-    for i in range( 1, 9 ):
-        if ( ret := GetDataRaw( SYR_CMD_PROFILE_X_AVAIL + str(i) ) ) != SYR_ERROR_STRING:
-            if ret == "1":
-                print( str(i), end = " " )
-        else:
-            # not nice :-/
-            print( SYR_ERROR_STRING, end = " " )
-    print()
-    print( "  Profile selected ......... " + (profNum:=GetDataRaw( SYR_CMD_PROFILE )) )
-    print( "  Profile " + str( profNum ) + " name ........... " + GetDataRaw( SYR_CMD_PROFILE_X_NAME  + str( profNum ) ) )
-    print( "  Profile " + str( profNum ) + " volume level ... " + GetDataRaw( SYR_CMD_PROFILE_X_VOL   + str( profNum ) ) )
-    print( "  Profile " + str( profNum ) + " time level ..... " + GetDataRaw( SYR_CMD_PROFILE_X_TIME  + str( profNum ) ) )
-    print( "  Profile " + str( profNum ) + " flow level ..... " + GetDataRaw( SYR_CMD_PROFILE_X_FLOW  + str( profNum ) ) )
-    print( "  Profile " + str( profNum ) + " microleakage ... " + GetDataRaw( SYR_CMD_PROFILE_X_MLEAK + str( profNum ) ) )
-    print( "  Profile " + str( profNum ) + " return time .... " + GetDataRaw( SYR_CMD_PROFILE_X_RTIME + str( profNum ) ) )
-    print( "  Profile " + str( profNum ) + " buzzer ......... " + GetDataRaw( SYR_CMD_PROFILE_X_BUZZ  + str( profNum ) ) )
-    print( "  Profile " + str( profNum ) + " leakage warning. " + GetDataRaw( SYR_CMD_PROFILE_X_LEAKW + str( profNum ) ) )
+    # print number of available/configured profiles
+    GetAndPrintProfiles()
+
+    # print content of active profile
+    GetAndPrintProfileX()
 
     # set admin mode to read some of the data (power supply voltage, alarm history)
     print( "  Enter admin mode ......... " + str( SetDataRaw( SYR_CMD_ADMIN, "(1)" ) ) )
@@ -561,6 +532,13 @@ if __name__ == "__main__":
             APP_LOGTEMPERATURE  = True
             APP_LOGPROFILE      = True
         # ------------------------------
+        elif args == "--showprofiles":
+            lstProfiles = GetAndPrintProfiles()
+            for profNum in lstProfiles:
+                print()
+                GetAndPrintProfileX( profNum )
+            sys.exit( APP_ERROR_NONE )
+        # ------------------------------
         else:
             if args == "--maxpolls" or args == "--delay" or args == "--ipaddr":
                 print( "ERROR: missing value for " + args, file=sys.stderr, flush=True)
@@ -660,6 +638,8 @@ if __name__ == "__main__":
         # get thealarm state as a number and in human readable form for stdout
         errorCode = GetDataRaw( SYR_CMD_ALARM )
         errorStr  = SYR_ALARM_CODES.get( errorCode, "UNKNOWN ERROR" )
+
+        dataLine2 = ""
 
         if APP_LOGCONDUCTIVITY:
             dataLine2 =  "; " + GetDataRaw( SYR_CMD_CONDUCTIVITY )

@@ -89,22 +89,24 @@ For a more detailed overview of the Syr SafeTech's state, use:
 
 Other command line options:
 
-    --help        : print this help
-    --ipaddr=addr : set the IP address of the Syr SafeTech Connect device
-    --henlo       : test presence of the device, print serial number, SW version and then quit
-    --nofile      : do not write to a file
-    --nostdout    : do not print to stdout (useful when used with nohup)
-    --maxpolls=n  : stop after n polls
-    --delay=n     : delay between set of polls in seconds; floating point allowed, e.g. --delay=1.5
-    --raw         : print raw data; units 'mbar', 'mL', etc. are not removed
-    --status      : print the current status and settings of the Syr, then quit
-    --profile     : print name and number of active profile, then quit
-    --profile=n   : select and activate profile number n
-    --clearalarm  : clear the ongoing alarm and open the valve
-    --logcond     : measure and log conductivity too, off by default
-    --logtemp     : measure and log temperature too, off by default
-    --logprofile  : log currently activated profile
-    --logall      : log all optional log options: conductivity, temperature, profile
+    --help          : print this help
+    --ipaddr=addr   : set the IP address of the Syr SafeTech Connect device
+    --henlo         : test presence of the device, print serial number, SW version and then quit
+    --nofile        : do not write to a file
+    --nostdout      : do not print to stdout (useful when used with nohup)
+    --maxpolls=n    : stop after n polls
+    --delay=n       : delay between set of polls in seconds; floating point allowed, e.g. --delay=1.5
+    --raw           : print raw data; units 'mbar', 'mL', etc. are not removed
+    --status        : print the current status and settings of the Syr, then quit
+    --profile       : print name and number of active profile, then quit
+    --profile=n     : select and activate profile number n
+    --showprofiles  : print all available profiles, then quit
+    --showprofile=n : print the settings of profile number n, then quit
+    --clearalarm    : clear the ongoing alarm and open the valve
+    --logcond       : measure and log conductivity too, off by default
+    --logtemp       : measure and log temperature too, off by default
+    --logprofile    : log currently activated profile
+    --logall        : log all optional log options: conductivity, temperature, profile
 
 
 For running in the background, on any server or minicomputer (Odroid, Raspberry Pi, etc.), e.g.:
@@ -295,6 +297,9 @@ to be continued ...
 
 ### CHANGES 2024/04/XX:
     - removed display of "Vol[L]" unit
+    - some minor code cleanups
+    - added showprofiles parameter
+    - fix for empty "dataLine2" error if optional logging is off
 
 ### CHANGES 2024/03/XX:
     - added IP address command line option
@@ -305,7 +310,7 @@ to be continued ...
     - added profile parameter
     - reworked some internals
     - added set profile parameter
-    - added more status parameters; alarm, alarm history, total water cosume
+    - added more status parameters; alarm, alarm history, total water consume
     - fixed power supply voltage readout
     - added clear alarm and open valve
     - added long alarm states in status report
@@ -334,23 +339,20 @@ to be continued ...
 
 ---
 ## TODO
+    - add showprofile=n
     - maybe: removal of units in GetDataRaw()?
     - maybe: dedicated function or whatever for units removal
     - display units when --status is used
     - printout and fetchting the data should really be separated
       because of the (not originally intended) ctrl functionality
     - add "quiet" parameter for command line control w/ othr SW
-    - show all/selected profiles' data
     - clear total water consume
     - some WIFI things; scan, RSSI, ...
     - Octave data reader
     - modify profiles
     - What happens when clrALA is executed and there's no alarm, but the valve is closed?
       Will it then be opened?
-    - iOS Shortcuts to change profiles
-    - iOS Shortcuts to reset/ack an alarm
     - ClearDataRaw() function (which e.g. then calls SetDataRaw( ..., useCLR=True) )
-    - DC voltage supply readout does not work; requires admin mode??
     - option to skip saving/displaying data if nothing happens
     - SyrSafeTechStat.py app, ncurses-like; with profile switching, etc.
     - (.)config file; Windoze: where to put this?

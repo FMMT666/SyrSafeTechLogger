@@ -293,6 +293,9 @@ to be continued ...
 ---
 ## NEWS
 
+### CHANGES 2024/04/XX:
+    - removed display of "Vol[L]" unit
+
 ### CHANGES 2024/03/XX:
     - added IP address command line option
     - added henlo option to check if Syr is present
@@ -331,6 +334,9 @@ to be continued ...
 
 ---
 ## TODO
+    - maybe: removal of units in GetDataRaw()?
+    - maybe: dedicated function or whatever for units removal
+    - display units when --status is used
     - printout and fetchting the data should really be separated
       because of the (not originally intended) ctrl functionality
     - add "quiet" parameter for command line control w/ othr SW

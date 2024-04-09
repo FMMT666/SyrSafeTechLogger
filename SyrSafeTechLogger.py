@@ -60,9 +60,10 @@ SYR_CMD_VOLTAGE          = "NET"        # dc supply voltage; 1/100V x.xx
 SYR_CMD_RTC              = "RTC"        # linux epoch time; 0-4294967295
 SYR_CMD_ADMIN            = "ADM"        # service = "(1)", admin = "(2)f"; reset with "clr" instead of "set" (".../clr/ADM")
 
+
 SYR_ERROR_STRING    = "ERROR"      # error string to be returned if something went wrong; maybe "-1" would be better?
 
-SYR_UNITS           = [ " mbar", "mL" ]  # for text/data replacement; imperial yet unknown; my device always puts out " mbar"
+SYR_UNITS_REPL      = [ " mbar", "mL", "Vol[L]" ]  # for text/data replacement; imperial yet unknown; my device always puts out " mbar"
 
 SYR_ALARM_CODES = {
     "FF" : "NO ALARM",
@@ -446,7 +447,11 @@ def GetAndPrintStatus():
     print( "  Ongoing alarm ............ " + SYR_ALARM_CODES.get( GetDataRaw( SYR_CMD_ALARM ), "UNKNOWN STATE") )
     print( "  Alarm memory ............. " + GetDataRaw( SYR_CMD_ALARM_MEMORY) )
     print( "  Last volume consumed ..... " + GetDataRaw( SYR_CMD_VOLUME_LAST) )
-    print( "  Total volume consumed .... " + GetDataRaw( SYR_CMD_VOLUME_TOTAL) )
+
+    tmp = GetDataRaw( SYR_CMD_VOLUME_TOTAL )   
+    for i in range( len( SYR_UNITS_REPL ) ):
+        tmp = tmp.replace( SYR_UNITS_REPL[i], "" )
+    print( "  Total volume consumed .... " + tmp )
 
     # reset admin mode
     print( "  Leave admin mode ......... " + str( ClrDataRaw( SYR_CMD_ADMIN ) ) )
@@ -667,8 +672,8 @@ if __name__ == "__main__":
 
 
         if APP_RAW is False:
-            for i in range( len( SYR_UNITS ) ):
-                dataLine = dataLine.replace( SYR_UNITS[i], "" )
+            for i in range( len( SYR_UNITS_REPL ) ):
+                dataLine = dataLine.replace( SYR_UNITS_REPL[i], "" )
 
 
         if APP_NOSTDOUT is False:

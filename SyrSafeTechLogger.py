@@ -108,6 +108,7 @@ APP_CMD_PROFILE_SET  = 4
 APP_CMD_CLEARALARM   = 5
 APP_CMD_ALARMCODES   = 6
 APP_CMD_SHOWPROFILES = 7
+APP_CMD_SHOWPROFILE  = 8
 
 APP_COMMAND          = None         # wild mix
 
@@ -207,7 +208,7 @@ def PrintUsage():
     print( "  --profile       : print name and number of active profile, then quit" )
     print( "  --profile=n     : select and activate profile number n" )
     print( "  --showprofiles  : print all available profiles, then quit")
-    print( "  --showprofile=n : print the settings of profile number n, then quit")
+    print( "  --showprofile=n : print the settings of profile number n, then quit; can display disabled profiles too")
     print( "  --clearalarm    : clear the ongoing alarm and open the valve" )
     print( "  --alarmcodes    : print a list with alarm codes, then quit" )
     print( "  --logcond       : measure and log conductivity too, off by default" )
@@ -363,7 +364,7 @@ def GetAndPrintProfiles( quiet = False ):
 # Actually, there should be something like a HAL here and for all the other things.
 # Directly reading the data and printing it in the same function is horseshite.
 # This thing's already a mess :)
-def GetAndPrintProfileX( profNum = None ):
+def GetAndPrintProfileX( profNum = None, warnIfNotAvailable = False ):
     """Read the Syr SafeTech's profile number 'profNum' and print the contents to stdout.
 
     profNum: profile number as integer (1..8); None = active profile
@@ -373,6 +374,10 @@ def GetAndPrintProfileX( profNum = None ):
     if profNum is None:
         profNum = GetDataRaw( SYR_CMD_PROFILE )
         print( "  Profile selected ......... " + (profNum:=GetDataRaw( SYR_CMD_PROFILE )) )
+
+    if warnIfNotAvailable:
+        if GetDataRaw( SYR_CMD_PROFILE_X_AVAIL + str( profNum ) ) != "1":
+            print( "  Profile " + str( profNum ) + " ................ WARNING, NOT CONFIGURED, NOT AVAILABLE!" )
 
     print( "  Profile " + str( profNum ) + " name ........... " + GetDataRaw( SYR_CMD_PROFILE_X_NAME  + str( profNum ) ) )
     print( "  Profile " + str( profNum ) + " volume level ... " + GetDataRaw( SYR_CMD_PROFILE_X_VOL   + str( profNum ) ) )
@@ -537,6 +542,18 @@ if __name__ == "__main__":
             for profNum in lstProfiles:
                 print()
                 GetAndPrintProfileX( profNum )
+            sys.exit( APP_ERROR_NONE )
+        # ------------------------------
+        elif "--showprofile=" in args:
+            try:
+                profNum = int( args[14:] )
+                if profNum < 1 or profNum > 8:
+                    raise ValueError
+            except:
+                print( "ERROR: invalid value for --showprofile", file=sys.stderr, flush=True )
+                PrintUsage()
+                sys.exit( APP_ERROR_ARGS )
+            GetAndPrintProfileX( profNum, warnIfNotAvailable=True )
             sys.exit( APP_ERROR_NONE )
         # ------------------------------
         else:

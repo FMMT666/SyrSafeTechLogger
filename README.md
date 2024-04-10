@@ -101,7 +101,7 @@ Other command line options:
     --profile       : print name and number of active profile, then quit
     --profile=n     : select and activate profile number n
     --showprofiles  : print all available profiles, then quit
-    --showprofile=n : print the settings of profile number n, then quit
+    --showprofile=n : print the settings of profile number n, then quit; can display disabled profiles too
     --clearalarm    : clear the ongoing alarm and open the valve
     --logcond       : measure and log conductivity too, off by default
     --logtemp       : measure and log temperature too, off by default
@@ -300,6 +300,7 @@ to be continued ...
     - some minor code cleanups
     - added showprofiles parameter
     - fix for empty "dataLine2" error if optional logging is off
+    - added showprofile=n parameter
 
 ### CHANGES 2024/03/XX:
     - added IP address command line option
@@ -339,7 +340,6 @@ to be continued ...
 
 ---
 ## TODO
-    - add showprofile=n
     - maybe: removal of units in GetDataRaw()?
     - maybe: dedicated function or whatever for units removal
     - display units when --status is used

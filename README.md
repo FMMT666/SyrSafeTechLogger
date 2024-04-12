@@ -301,6 +301,7 @@ to be continued ...
     - added showprofiles parameter
     - fix for empty "dataLine2" error if optional logging is off
     - added showprofile=n parameter
+    - some cleanups and minor improvements
 
 ### CHANGES 2024/03/XX:
     - added IP address command line option

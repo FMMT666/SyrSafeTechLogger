@@ -425,8 +425,8 @@ def GetAndPrintStatus():
     print( "  Last volume consumed ..... " + GetDataRaw( SYR_CMD_VOLUME_LAST) )
 
     tmp = GetDataRaw( SYR_CMD_VOLUME_TOTAL )   
-    for i in range( len( SYR_UNITS_REPL ) ):
-        tmp = tmp.replace( SYR_UNITS_REPL[i], "" )
+    for strReplace in SYR_UNITS_REPL:
+        tmp = tmp.replace( strReplace, "" )
     print( "  Total volume consumed .... " + tmp )
 
     # reset admin mode
@@ -538,11 +538,9 @@ if __name__ == "__main__":
             APP_LOGPROFILE      = True
         # ------------------------------
         elif args == "--showprofiles":
-            lstProfiles = GetAndPrintProfiles()
-            for profNum in lstProfiles:
-                print()
-                GetAndPrintProfileX( profNum )
-            sys.exit( APP_ERROR_NONE )
+            # only accept the first command
+            if APP_COMMAND is None:
+                APP_COMMAND = APP_CMD_SHOWPROFILES
         # ------------------------------
         elif "--showprofile=" in args:
             try:
@@ -553,8 +551,9 @@ if __name__ == "__main__":
                 print( "ERROR: invalid value for --showprofile", file=sys.stderr, flush=True )
                 PrintUsage()
                 sys.exit( APP_ERROR_ARGS )
-            GetAndPrintProfileX( profNum, warnIfNotAvailable=True )
-            sys.exit( APP_ERROR_NONE )
+            # only accept the first command
+            if APP_COMMAND is None:
+                APP_COMMAND = APP_CMD_SHOWPROFILE
         # ------------------------------
         else:
             if args == "--maxpolls" or args == "--delay" or args == "--ipaddr":
@@ -614,6 +613,20 @@ if __name__ == "__main__":
         sys.exit( APP_ERROR_NONE )
 
     # -------------------------------------------------------------------------------------------------------
+    # show all available profiles
+    if APP_COMMAND == APP_CMD_SHOWPROFILES:
+        for profNum in GetAndPrintProfiles():
+            print()
+            GetAndPrintProfileX( profNum )
+        sys.exit( APP_ERROR_NONE )
+
+    # -------------------------------------------------------------------------------------------------------
+    # show a single profile, even if it's not "available", aka configured
+    if APP_COMMAND == APP_CMD_SHOWPROFILE:
+        GetAndPrintProfileX( profNum, warnIfNotAvailable=True )
+        sys.exit( APP_ERROR_NONE )
+
+    # -------------------------------------------------------------------------------------------------------
     # clear the ongoing alarm
     if APP_COMMAND == APP_CMD_CLEARALARM:
         print( "  Ongoing alarm ............ " + SYR_ALARM_CODES.get( alarmState:=GetDataRaw( SYR_CMD_ALARM ), "UNKNOWN STATE") )
@@ -628,13 +641,13 @@ if __name__ == "__main__":
         sys.exit( APP_ERROR_NONE )
 
 
+
     # -------------------------------------------------------------------------------------------------------
     # preparations for the main "logger" loop
     if APP_NOFILE is False:
         fout = open( time.strftime("%Y%m%d%H%M%S") + "_SyrSafeTech.log", "w+t" )
     else:
         fout = None
-
 
     # -------------------------------------------------------------------------------------------------------
     # the main "logger" loop
@@ -669,8 +682,8 @@ if __name__ == "__main__":
 
 
         if APP_RAW is False:
-            for i in range( len( SYR_UNITS_REPL ) ):
-                dataLine = dataLine.replace( SYR_UNITS_REPL[i], "" )
+            for strReplace in SYR_UNITS_REPL:
+                dataLine = dataLine.replace( strReplace, "" )
 
 
         if APP_NOSTDOUT is False:

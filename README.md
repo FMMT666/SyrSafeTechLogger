@@ -302,6 +302,7 @@ to be continued ...
     - fix for empty "dataLine2" error if optional logging is off
     - added showprofile=n parameter
     - some cleanups and minor improvements
+    - added display of units for status and profile
 
 ### CHANGES 2024/03/XX:
     - added IP address command line option
@@ -343,7 +344,6 @@ to be continued ...
 ## TODO
     - maybe: removal of units in GetDataRaw()?
     - maybe: dedicated function or whatever for units removal
-    - display units when --status is used
     - printout and fetchting the data should really be separated
       because of the (not originally intended) ctrl functionality
     - add "quiet" parameter for command line control w/ othr SW

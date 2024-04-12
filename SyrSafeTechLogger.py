@@ -375,18 +375,21 @@ def GetAndPrintProfileX( profNum = None, warnIfNotAvailable = False ):
         profNum = GetDataRaw( SYR_CMD_PROFILE )
         print( "  Profile selected ......... " + (profNum:=GetDataRaw( SYR_CMD_PROFILE )) )
 
-    if warnIfNotAvailable:
-        if GetDataRaw( SYR_CMD_PROFILE_X_AVAIL + str( profNum ) ) != "1":
-            print( "  Profile " + str( profNum ) + " ................ WARNING, NOT CONFIGURED, NOT AVAILABLE!" )
+    # saves a lot of typing
+    profNum = str( profNum )
 
-    print( "  Profile " + str( profNum ) + " name ........... " + GetDataRaw( SYR_CMD_PROFILE_X_NAME  + str( profNum ) ) )
-    print( "  Profile " + str( profNum ) + " volume level ... " + GetDataRaw( SYR_CMD_PROFILE_X_VOL   + str( profNum ) ) )
-    print( "  Profile " + str( profNum ) + " time level ..... " + GetDataRaw( SYR_CMD_PROFILE_X_TIME  + str( profNum ) ) )
-    print( "  Profile " + str( profNum ) + " flow level ..... " + GetDataRaw( SYR_CMD_PROFILE_X_FLOW  + str( profNum ) ) )
-    print( "  Profile " + str( profNum ) + " microleakage ... " + GetDataRaw( SYR_CMD_PROFILE_X_MLEAK + str( profNum ) ) )
-    print( "  Profile " + str( profNum ) + " return time .... " + GetDataRaw( SYR_CMD_PROFILE_X_RTIME + str( profNum ) ) )
-    print( "  Profile " + str( profNum ) + " buzzer ......... " + GetDataRaw( SYR_CMD_PROFILE_X_BUZZ  + str( profNum ) ) )
-    print( "  Profile " + str( profNum ) + " leakage warning. " + GetDataRaw( SYR_CMD_PROFILE_X_LEAKW + str( profNum ) ) )
+    if warnIfNotAvailable:
+        if GetDataRaw( SYR_CMD_PROFILE_X_AVAIL + profNum ) != "1":
+            print( "  Profile " + profNum + " ................ WARNING, NOT CONFIGURED, NOT AVAILABLE!" )
+
+    print( "  Profile " + profNum + " name ........... " + GetDataRaw( SYR_CMD_PROFILE_X_NAME  + profNum )         )
+    print( "  Profile " + profNum + " volume level ... " + GetDataRaw( SYR_CMD_PROFILE_X_VOL   + profNum ) + "L"   )
+    print( "  Profile " + profNum + " time level ..... " + GetDataRaw( SYR_CMD_PROFILE_X_TIME  + profNum ) + "s"   )
+    print( "  Profile " + profNum + " flow level ..... " + GetDataRaw( SYR_CMD_PROFILE_X_FLOW  + profNum ) + "L/h" )
+    print( "  Profile " + profNum + " microleakage ... " + GetDataRaw( SYR_CMD_PROFILE_X_MLEAK + profNum )         )
+    print( "  Profile " + profNum + " return time .... " + GetDataRaw( SYR_CMD_PROFILE_X_RTIME + profNum ) + "h"   )
+    print( "  Profile " + profNum + " buzzer ......... " + GetDataRaw( SYR_CMD_PROFILE_X_BUZZ  + profNum )         )
+    print( "  Profile " + profNum + " leakage warning. " + GetDataRaw( SYR_CMD_PROFILE_X_LEAKW + profNum )         )
 
 
 
@@ -406,15 +409,15 @@ def GetAndPrintStatus():
     # set admin mode to read some of the data (power supply voltage, alarm history)
     print( "  Enter admin mode ......... " + str( SetDataRaw( SYR_CMD_ADMIN, "(1)" ) ) )
 
-    print( "  Leakage temp disable ..... " + GetDataRaw( SYR_CMD_TMP) )
-    print( "  Buzzer ................... " + GetDataRaw( SYR_CMD_BUZZER) )
-    print( "  Conductivity limit ....... " + GetDataRaw( SYR_CMD_CONDUCT_LIMIT) )
-    print( "  Conductivity factor ...... " + GetDataRaw( SYR_CMD_CONDUCT_FACTOR) )
-    print( "  Leakage warning .......... " + GetDataRaw( SYR_CMD_LEAKAGE_WARNING) )
-    print( "  Next maintenance ......... " + GetDataRaw( SYR_CMD_NEXT_MAINTENANCE) )
-    print( "  Battery voltage .......... " + GetDataRaw( SYR_CMD_BATTERY) )
-    print( "  Power supply voltage ..... " + GetDataRaw( SYR_CMD_VOLTAGE) )
-    print( "  RTC ...................... " + (strRTC:=GetDataRaw( SYR_CMD_RTC) ) )
+    print( "  Leakage temp disable ..... " + GetDataRaw( SYR_CMD_TMP)                        )
+    print( "  Buzzer ................... " + GetDataRaw( SYR_CMD_BUZZER)                     )
+    print( "  Conductivity limit ....... " + GetDataRaw( SYR_CMD_CONDUCT_LIMIT)    + "uS/cm" )
+    print( "  Conductivity factor ...... " + GetDataRaw( SYR_CMD_CONDUCT_FACTOR)             )
+    print( "  Leakage warning .......... " + GetDataRaw( SYR_CMD_LEAKAGE_WARNING)            )
+    print( "  Next maintenance ......... " + GetDataRaw( SYR_CMD_NEXT_MAINTENANCE)           )
+    print( "  Battery voltage .......... " + GetDataRaw( SYR_CMD_BATTERY)          + "V"     )
+    print( "  Power supply voltage ..... " + GetDataRaw( SYR_CMD_VOLTAGE)          + "V"     )
+    print( "  RTC ...................... " + (strRTC:=GetDataRaw( SYR_CMD_RTC) )             )
     try:
         intRTC = int( strRTC )
     except:
@@ -422,12 +425,12 @@ def GetAndPrintStatus():
     print( "  RTC converted............. " + ( str(datetime.datetime.fromtimestamp( intRTC )) if intRTC > 0 else "ERROR" ) )
     print( "  Ongoing alarm ............ " + SYR_ALARM_CODES.get( GetDataRaw( SYR_CMD_ALARM ), "UNKNOWN STATE") )
     print( "  Alarm memory ............. " + GetDataRaw( SYR_CMD_ALARM_MEMORY) )
-    print( "  Last volume consumed ..... " + GetDataRaw( SYR_CMD_VOLUME_LAST) )
+    print( "  Last volume consumed ..... " + GetDataRaw( SYR_CMD_VOLUME_LAST)       + "L"    )
 
     tmp = GetDataRaw( SYR_CMD_VOLUME_TOTAL )   
     for strReplace in SYR_UNITS_REPL:
         tmp = tmp.replace( strReplace, "" )
-    print( "  Total volume consumed .... " + tmp )
+    print( "  Total volume consumed .... " + tmp                                    + "L"    )
 
     # reset admin mode
     print( "  Leave admin mode ......... " + str( ClrDataRaw( SYR_CMD_ADMIN ) ) )

@@ -49,11 +49,13 @@ SYR_CMD_PROFILE_X_MLEAK  = "PM"         # (PM1..PM8) read profile X micro leakag
 SYR_CMD_PROFILE_X_RTIME  = "PR"         # (PR1..PR8) read profile X return time; 0 = never, 1-720 hours (30 days)
 SYR_CMD_PROFILE_X_BUZZ   = "PB"         # (PB1..PB8) read profile X buzzer; 0 = off, 1 = on
 SYR_CMD_PROFILE_X_LEAKW  = "PW"         # (PW1..PW8) read profile X leakage warning; 0 = off, 1 = on
+SYR_CMD_LANGUAGE         = "LNG"        # language; 0 = DE, 1 = EN, 2 = ES, 3 = IT, 4 = PL
+SYR_CMD_FLOOR_SENSOR     = "BSA"        # floor sensor; 0 = disabled, 1 = enabled
 SYR_CMD_TMP              = "TMP"        # leakage temporary deactivation; 0 = disabled, 0-4294967295 seconds
 SYR_CMD_BUZZER           = "BUZ"        # 0 = disabled, 1 = enabled
 SYR_CMD_CONDUCT_LIMIT    = "CNL"        # conductivity limit; 0-5000uS/cm
 SYR_CMD_CONDUCT_FACTOR   = "CNF"        # conductivity factor; 5-50 representing 0.5-5.0
-SYR_CMD_LEAKAGE_WARNING  = "LWT"        # leakage warning notification; 80-99 in percent
+SYR_CMD_LEAKAGE_WARNING  = "LWT"        # leakage warning notification; 80-99 in percent, 0 = off (presumably)
 SYR_CMD_NEXT_MAINTENANCE = "SRV"        # next maintenance date; dd.mm.yyyy 
 SYR_CMD_BATTERY          = "BAT"        # battery voltage;   1/100V x.xx
 SYR_CMD_VOLTAGE          = "NET"        # dc supply voltage; 1/100V x.xx
@@ -82,6 +84,17 @@ SYR_ALARM_CODES = {
     "AD" : "LOW BATTERY",
     "AE" : "WARNING VOLUME LEAKAGE",
     "AF" : "ALARM NO POWER SUPPLY"
+}
+
+# TODO: The following are just placeholders; the real values are unknown (Co-Pilot did this :)
+# Apparnetly that's not implemented in the device yet; the manual says "EN" and "DE" only.
+# Querying "LNG" returns the string "0 (0=Deutsch 1=English)"
+SYR_LANGUAGES = {
+    0 : "Kartoffel",
+    1 : "Brexit",
+    2 : "Sangria",
+    3 : "Pizza",
+    4 : "Tyskie"
 }
 
 SYR_VALVE_STATES = {
@@ -386,10 +399,10 @@ def GetAndPrintProfileX( profNum = None, warnIfNotAvailable = False ):
     print( "  Profile " + profNum + " volume level ... " + GetDataRaw( SYR_CMD_PROFILE_X_VOL   + profNum ) + "L"   )
     print( "  Profile " + profNum + " time level ..... " + GetDataRaw( SYR_CMD_PROFILE_X_TIME  + profNum ) + "s"   )
     print( "  Profile " + profNum + " flow level ..... " + GetDataRaw( SYR_CMD_PROFILE_X_FLOW  + profNum ) + "L/h" )
-    print( "  Profile " + profNum + " microleakage ... " + GetDataRaw( SYR_CMD_PROFILE_X_MLEAK + profNum )         )
+    print( "  Profile " + profNum + " microleakage ... " + ("on" if GetDataRaw( SYR_CMD_PROFILE_X_MLEAK + profNum ) == "1" else "off"))
     print( "  Profile " + profNum + " return time .... " + GetDataRaw( SYR_CMD_PROFILE_X_RTIME + profNum ) + "h"   )
-    print( "  Profile " + profNum + " buzzer ......... " + GetDataRaw( SYR_CMD_PROFILE_X_BUZZ  + profNum )         )
-    print( "  Profile " + profNum + " leakage warning. " + GetDataRaw( SYR_CMD_PROFILE_X_LEAKW + profNum )         )
+    print( "  Profile " + profNum + " buzzer ......... " + ("on" if GetDataRaw( SYR_CMD_PROFILE_X_BUZZ  + profNum ) == "1" else "off"))    
+    print( "  Profile " + profNum + " leakage warning. " + ("on" if GetDataRaw( SYR_CMD_PROFILE_X_LEAKW + profNum ) == "1" else "off"))
 
 
 
@@ -410,10 +423,13 @@ def GetAndPrintStatus():
     print( "  Enter admin mode ......... " + str( SetDataRaw( SYR_CMD_ADMIN, "(1)" ) ) )
 
     print( "  Leakage temp disable ..... " + GetDataRaw( SYR_CMD_TMP)                        )
-    print( "  Buzzer ................... " + GetDataRaw( SYR_CMD_BUZZER)                     )
+    print( "  Buzzer ................... " + ("on" if GetDataRaw( SYR_CMD_BUZZER) == "1" else "off"))
     print( "  Conductivity limit ....... " + GetDataRaw( SYR_CMD_CONDUCT_LIMIT)    + "uS/cm" )
     print( "  Conductivity factor ...... " + GetDataRaw( SYR_CMD_CONDUCT_FACTOR)             )
-    print( "  Leakage warning .......... " + GetDataRaw( SYR_CMD_LEAKAGE_WARNING)            )
+    print( "  Leakage warning .......... " + GetDataRaw( SYR_CMD_LEAKAGE_WARNING)  + "%"     )
+    # not supported yet
+    # print( "  Language ................. " + SYR_LANGUAGES.get( GetDataRaw( SYR_CMD_LANGUAGE), "UNKNOWN LANGUAGE" ) )
+    print( "  Floor sensor ............. " + ("on" if GetDataRaw( SYR_CMD_FLOOR_SENSOR) == "1" else "off"))
     print( "  Next maintenance ......... " + GetDataRaw( SYR_CMD_NEXT_MAINTENANCE)           )
     print( "  Battery voltage .......... " + GetDataRaw( SYR_CMD_BATTERY)          + "V"     )
     print( "  Power supply voltage ..... " + GetDataRaw( SYR_CMD_VOLTAGE)          + "V"     )

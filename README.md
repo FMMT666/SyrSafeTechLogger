@@ -303,6 +303,7 @@ to be continued ...
     - added showprofile=n parameter
     - some cleanups and minor improvements
     - added display of units for status and profile
+    - added some more units and on/off displays
 
 ### CHANGES 2024/03/XX:
     - added IP address command line option
@@ -342,8 +343,10 @@ to be continued ...
 
 ---
 ## TODO
+    - make "--status" or "--henlo" the default and start logging with "--log"
     - maybe: removal of units in GetDataRaw()?
     - maybe: dedicated function or whatever for units removal
+    - not nice: "on/off" will  display "off" if an error occurred
     - printout and fetchting the data should really be separated
       because of the (not originally intended) ctrl functionality
     - add "quiet" parameter for command line control w/ othr SW
